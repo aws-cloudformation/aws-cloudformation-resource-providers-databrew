@@ -44,7 +44,9 @@
         }
       },
       "additionalProperties": false,
-      "required": ["Type"]
+      "required": [
+        "Type"
+      ]
     },
     "Tags": {
       "type": "array",
@@ -78,7 +80,12 @@
     }
   },
   "additionalProperties": false,
-  "required": ["DatasetName","Name", "RecipeName", "RoleArn"],
+  "required": [
+    "DatasetName",
+    "Name",
+    "RecipeName",
+    "RoleArn"
+  ],
   "primaryIdentifier": [
     "/properties/Name"
   ],

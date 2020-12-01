@@ -5,7 +5,7 @@
   "properties": {
     "Description": {
       "description": "Description of the recipe",
-      "pattern": "[\u0020-\uD7FF\uE000-\uFFFD\uD800\uDC00-\uDBFF\uDFFF\t]*",
+      "pattern": "[ -\ud7ff\ue000-\ufffd\ud800\udc00-\udbff\udfff\t]*",
       "minLength": 0,
       "maxLength": 1024,
       "type": "string"
@@ -13,7 +13,7 @@
     "Name": {
       "description": "Recipe name",
       "type": "string",
-      "pattern": "^[\u0020-\u002e\u0030-\u005E\u0060-\uD7FF\uE000-\uFFFD]*$",
+      "pattern": "^[ -.0-^`-\ud7ff\ue000-\ufffd]*$",
       "minLength": 1,
       "maxLength": 255
     },
@@ -45,12 +45,16 @@
           "$ref": "#/definitions/DataCatalogInputDefinition"
         }
       },
-      "oneOf":[
+      "oneOf": [
         {
-          "required":["S3InputDefinition"]
+          "required": [
+            "S3InputDefinition"
+          ]
         },
         {
-          "required":["DataCatalogInputDefinition"]
+          "required": [
+            "DataCatalogInputDefinition"
+          ]
         }
       ],
       "additionalProperties": false
@@ -67,7 +71,9 @@
         }
       },
       "additionalProperties": false,
-      "required": ["Bucket"]
+      "required": [
+        "Bucket"
+      ]
     },
     "DataCatalogInputDefinition": {
       "type": "object",
@@ -105,7 +111,9 @@
         }
       },
       "additionalProperties": false,
-      "required": ["Action"]
+      "required": [
+        "Action"
+      ]
     },
     "Action": {
       "type": "object",
@@ -124,7 +132,9 @@
         }
       },
       "additionalProperties": false,
-      "required": ["Operation"]
+      "required": [
+        "Operation"
+      ]
     },
     "ConditionExpression": {
       "description": "Condition expressions applied to the step action",
@@ -144,7 +154,10 @@
         }
       },
       "additionalProperties": false,
-      "required": ["Condition", "TargetColumn"]
+      "required": [
+        "Condition",
+        "TargetColumn"
+      ]
     },
     "RecipeParameters": {
       "properties": {
@@ -473,12 +486,16 @@
               "$ref": "#/definitions/DataCatalogInputDefinition"
             }
           },
-          "oneOf":[
+          "oneOf": [
             {
-              "required":["S3InputDefinition"]
+              "required": [
+                "S3InputDefinition"
+              ]
             },
             {
-              "required":["DataCatalogInputDefinition"]
+              "required": [
+                "DataCatalogInputDefinition"
+              ]
             }
           ],
           "additionalProperties": false
@@ -508,7 +525,10 @@
     }
   },
   "additionalProperties": false,
-  "required": ["Name", "Steps"],
+  "required": [
+    "Name",
+    "Steps"
+  ],
   "primaryIdentifier": [
     "/properties/Name"
   ],

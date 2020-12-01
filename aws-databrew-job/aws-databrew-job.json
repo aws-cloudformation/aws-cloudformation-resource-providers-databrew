@@ -6,7 +6,7 @@
     "DatasetName": {
       "description": "Dataset name",
       "type": "string",
-      "pattern": "[\u0020-\uD7FF\uE000-\uFFFD\uD800\uDC00-\uDBFF\uDFFF\t]*",
+      "pattern": "[ -\ud7ff\ue000-\ufffd\ud800\udc00-\udbff\udfff\t]*",
       "minLength": 1,
       "maxLength": 255
     },
@@ -27,7 +27,7 @@
     "Name": {
       "description": "Job name",
       "type": "string",
-      "pattern": "[\u0020-\uD7FF\uE000-\uFFFD\uD800\uDC00-\uDBFF\uDFFF\t]*",
+      "pattern": "[ -\ud7ff\ue000-\ufffd\ud800\udc00-\udbff\udfff\t]*",
       "minLength": 1,
       "maxLength": 255
     },
@@ -73,12 +73,14 @@
         }
       },
       "additionalProperties": false,
-      "required": ["Bucket"]
+      "required": [
+        "Bucket"
+      ]
     },
     "ProjectName": {
       "description": "Project name",
       "type": "string",
-      "pattern": "[\u0020-\uD7FF\uE000-\uFFFD\uD800\uDC00-\uDBFF\uDFFF\t]*",
+      "pattern": "[ -\ud7ff\ue000-\ufffd\ud800\udc00-\udbff\udfff\t]*",
       "minLength": 1,
       "maxLength": 255
     },
@@ -95,7 +97,9 @@
         }
       },
       "additionalProperties": false,
-      "required": ["Name"]
+      "required": [
+        "Name"
+      ]
     },
     "RoleArn": {
       "description": "Role arn",
@@ -126,7 +130,9 @@
         }
       },
       "additionalProperties": false,
-      "required": ["Bucket"]
+      "required": [
+        "Bucket"
+      ]
     },
     "Output": {
       "type": "object",
@@ -172,7 +178,9 @@
         }
       },
       "additionalProperties": false,
-      "required": ["Location"]
+      "required": [
+        "Location"
+      ]
     },
     "Tag": {
       "description": "A key-value pair to associate with a resource.",
@@ -197,7 +205,11 @@
     }
   },
   "additionalProperties": false,
-  "required": ["Name", "RoleArn", "Type"],
+  "required": [
+    "Name",
+    "RoleArn",
+    "Type"
+  ],
   "primaryIdentifier": [
     "/properties/Name"
   ],

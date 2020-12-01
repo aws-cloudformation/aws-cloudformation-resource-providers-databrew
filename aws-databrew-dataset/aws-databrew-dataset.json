@@ -20,12 +20,16 @@
           "$ref": "#/definitions/ExcelOptions"
         }
       },
-      "oneOf":[
+      "oneOf": [
         {
-          "required":["Json"]
+          "required": [
+            "Json"
+          ]
         },
         {
-          "required":["Excel"]
+          "required": [
+            "Excel"
+          ]
         }
       ],
       "additionalProperties": false
@@ -41,12 +45,16 @@
           "$ref": "#/definitions/DataCatalogInputDefinition"
         }
       },
-      "oneOf":[
+      "oneOf": [
         {
-          "required":["S3InputDefinition"]
+          "required": [
+            "S3InputDefinition"
+          ]
         },
         {
-          "required":["DataCatalogInputDefinition"]
+          "required": [
+            "DataCatalogInputDefinition"
+          ]
         }
       ],
       "additionalProperties": false
@@ -59,7 +67,7 @@
       }
     }
   },
-  "definitions" : {
+  "definitions": {
     "JsonOptions": {
       "description": "Json options",
       "type": "object",
@@ -90,12 +98,16 @@
           "maxItems": 1
         }
       },
-      "oneOf":[
+      "oneOf": [
         {
-          "required":["SheetNames"]
+          "required": [
+            "SheetNames"
+          ]
         },
         {
-          "required":["SheetIndexes"]
+          "required": [
+            "SheetIndexes"
+          ]
         }
       ],
       "additionalProperties": false
@@ -112,7 +124,9 @@
         }
       },
       "additionalProperties": false,
-      "required": ["Bucket"]
+      "required": [
+        "Bucket"
+      ]
     },
     "DataCatalogInputDefinition": {
       "type": "object",
@@ -158,14 +172,16 @@
     }
   },
   "additionalProperties": false,
-  "required": ["Name", "Input"],
+  "required": [
+    "Name",
+    "Input"
+  ],
   "primaryIdentifier": [
     "/properties/Name"
   ],
   "createOnlyProperties": [
     "/properties/Name",
     "/properties/Tags"
-
   ],
   "handlers": {
     "create": {
