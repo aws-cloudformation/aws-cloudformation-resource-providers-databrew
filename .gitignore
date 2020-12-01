@@ -1,0 +1,12 @@
+.DS_Store
+._*
+.idea/
+.gradle/
+wrapper/
+gradle/
+gradlew
+gradlew.bat
+build
+rpdk.log
+*/*.zip
+*/.hypothesis

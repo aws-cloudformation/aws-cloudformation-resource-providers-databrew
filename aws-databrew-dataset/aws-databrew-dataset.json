@@ -1,0 +1,204 @@
+{
+  "typeName": "AWS::DataBrew::Dataset",
+  "description": "Resource schema for AWS::DataBrew::Dataset.",
+  "sourceUrl": "https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-databrew.git",
+  "properties": {
+    "Name": {
+      "description": "Dataset name",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "FormatOptions": {
+      "description": "Format options for dataset",
+      "type": "object",
+      "properties": {
+        "Json": {
+          "$ref": "#/definitions/JsonOptions"
+        },
+        "Excel": {
+          "$ref": "#/definitions/ExcelOptions"
+        }
+      },
+      "oneOf":[
+        {
+          "required":["Json"]
+        },
+        {
+          "required":["Excel"]
+        }
+      ],
+      "additionalProperties": false
+    },
+    "Input": {
+      "description": "Input",
+      "type": "object",
+      "properties": {
+        "S3InputDefinition": {
+          "$ref": "#/definitions/S3Location"
+        },
+        "DataCatalogInputDefinition": {
+          "$ref": "#/definitions/DataCatalogInputDefinition"
+        }
+      },
+      "oneOf":[
+        {
+          "required":["S3InputDefinition"]
+        },
+        {
+          "required":["DataCatalogInputDefinition"]
+        }
+      ],
+      "additionalProperties": false
+    },
+    "Tags": {
+      "type": "array",
+      "uniqueItems": false,
+      "items": {
+        "$ref": "#/definitions/Tag"
+      }
+    }
+  },
+  "definitions" : {
+    "JsonOptions": {
+      "description": "Json options",
+      "type": "object",
+      "properties": {
+        "MultiLine": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExcelOptions": {
+      "type": "object",
+      "properties": {
+        "SheetNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "maxItems": 1
+        },
+        "SheetIndexes": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1,
+          "maxItems": 1
+        }
+      },
+      "oneOf":[
+        {
+          "required":["SheetNames"]
+        },
+        {
+          "required":["SheetIndexes"]
+        }
+      ],
+      "additionalProperties": false
+    },
+    "S3Location": {
+      "description": "Input location",
+      "type": "object",
+      "properties": {
+        "Bucket": {
+          "type": "string"
+        },
+        "Key": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": ["Bucket"]
+    },
+    "DataCatalogInputDefinition": {
+      "type": "object",
+      "properties": {
+        "CatalogId": {
+          "description": "Catalog id",
+          "type": "string"
+        },
+        "DatabaseName": {
+          "description": "Database name",
+          "type": "string"
+        },
+        "TableName": {
+          "description": "Table name",
+          "type": "string"
+        },
+        "TempDirectory": {
+          "$ref": "#/definitions/S3Location"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Tag": {
+      "description": "A key-value pair to associate with a resource.",
+      "type": "object",
+      "properties": {
+        "Key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "Value": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 256
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "Value",
+        "Key"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": ["Name", "Input"],
+  "primaryIdentifier": [
+    "/properties/Name"
+  ],
+  "createOnlyProperties": [
+    "/properties/Name",
+    "/properties/Tags"
+
+  ],
+  "handlers": {
+    "create": {
+      "permissions": [
+        "databrew:CreateDataset",
+        "databrew:TagResource",
+        "databrew:UntagResource",
+        "iam:PassRole"
+      ]
+    },
+    "read": {
+      "permissions": [
+        "databrew:DescribeDataset",
+        "databrew:ListTagsForResource",
+        "iam:ListRoles"
+      ]
+    },
+    "update": {
+      "permissions": [
+        "databrew:UpdateDataset"
+      ]
+    },
+    "delete": {
+      "permissions": [
+        "databrew:DeleteDataset"
+      ]
+    },
+    "list": {
+      "permissions": [
+        "databrew:ListDatasets",
+        "databrew:ListTagsForResource",
+        "iam:ListRoles"
+      ]
+    }
+  }
+}
