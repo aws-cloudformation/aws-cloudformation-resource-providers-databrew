@@ -1,0 +1,17 @@
+{
+    "typeName": "AWS::DataBrew::Project",
+    "language": "java",
+    "runtime": "java8",
+    "entrypoint": "software.amazon.databrew.project.HandlerWrapper::handleRequest",
+    "testEntrypoint": "software.amazon.databrew.project.HandlerWrapper::testEntrypoint",
+    "settings": {
+        "namespace": [
+            "software",
+            "amazon",
+            "databrew",
+            "project"
+        ],
+        "protocolVersion": "2.0.0"
+    },
+    "executableEntrypoint": "software.amazon.databrew.project.HandlerWrapperExecutable"
+}
