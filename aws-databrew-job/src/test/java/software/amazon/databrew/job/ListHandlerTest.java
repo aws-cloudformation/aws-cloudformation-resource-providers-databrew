@@ -112,4 +112,44 @@ public class ListHandlerTest {
         assertThat(response.getResourceModels()).isNull();
         assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.ServiceInternalError);
     }
+
+    @Test
+    public void handleRequest_SuccessfulList_WithOutputFormatOptions() {
+        final ListHandler handler = new ListHandler();
+
+        final List<Job> jobs = new ArrayList<>();
+        Job job = Job.builder()
+                .type(TestUtil.JOB_TYPE_RECIPE)
+                .name(TestUtil.JOB_NAME)
+                .outputs(TestUtil.CSV_OUTPUT_VALID_DELIMITER)
+                .build();
+        jobs.add(job);
+
+        final ListJobsResponse listJobsResponse = ListJobsResponse.builder()
+                .jobs(jobs)
+                .build();
+
+        doReturn(listJobsResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder().build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response =
+                handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isNull();
+        assertThat(response.getResourceModels().size()).isEqualTo(1);
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+        assertThatJobModelsAreEqual(response.getResourceModels().get(0), job);
+    }
 }

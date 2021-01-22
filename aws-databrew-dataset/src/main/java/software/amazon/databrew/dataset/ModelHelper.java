@@ -5,6 +5,7 @@ import software.amazon.awssdk.services.databrew.model.Dataset;
 import software.amazon.awssdk.services.databrew.model.ExcelOptions;
 import software.amazon.awssdk.services.databrew.model.FormatOptions;
 import software.amazon.awssdk.services.databrew.model.JsonOptions;
+import software.amazon.awssdk.services.databrew.model.CsvOptions;
 import software.amazon.awssdk.services.databrew.model.S3Location;
 import software.amazon.awssdk.services.databrew.model.DataCatalogInputDefinition;
 import software.amazon.awssdk.services.databrew.model.Input;
@@ -83,34 +84,40 @@ public class ModelHelper {
 
     public static FormatOptions buildRequestFormatOptions(final software.amazon.databrew.dataset.FormatOptions modelFormatOptions) {
         if (modelFormatOptions == null) return null;
+        software.amazon.awssdk.services.databrew.model.FormatOptions.Builder requestFormatOptionsBuilder = software.amazon.awssdk.services.databrew.model.FormatOptions.builder();
         software.amazon.databrew.dataset.ExcelOptions modelExcelOptions = modelFormatOptions.getExcel();
         software.amazon.databrew.dataset.JsonOptions modelJsonOptions = modelFormatOptions.getJson();
+        software.amazon.databrew.dataset.CsvOptions modelCsvOptions = modelFormatOptions.getCsv();
         if (modelExcelOptions != null) {
             if (modelExcelOptions.getSheetIndexes() != null) {
                 software.amazon.awssdk.services.databrew.model.ExcelOptions requestExcelOptions = software.amazon.awssdk.services.databrew.model.ExcelOptions.builder()
                         .sheetIndexes(modelExcelOptions.getSheetIndexes())
                         .build();
-                return software.amazon.awssdk.services.databrew.model.FormatOptions.builder()
-                        .excel(requestExcelOptions)
-                        .build();
+                requestFormatOptionsBuilder
+                        .excel(requestExcelOptions);
             } else if (modelExcelOptions.getSheetNames() != null) {
                 ExcelOptions requestExcelOptions = ExcelOptions.builder()
                         .sheetNames(modelExcelOptions.getSheetNames())
                         .build();
-                return software.amazon.awssdk.services.databrew.model.FormatOptions.builder()
-                        .excel(requestExcelOptions)
-                        .build();
+                requestFormatOptionsBuilder
+                        .excel(requestExcelOptions);
             }
         }
-        else if (modelJsonOptions != null) {
+        if (modelJsonOptions != null) {
             JsonOptions requestJsonOptions = JsonOptions.builder()
                     .multiLine(modelJsonOptions.getMultiLine())
                     .build();
-            return software.amazon.awssdk.services.databrew.model.FormatOptions.builder()
-                    .json(requestJsonOptions)
-                    .build();
+            requestFormatOptionsBuilder
+                    .json(requestJsonOptions);
         }
-        return null;
+        if (modelCsvOptions != null) {
+            CsvOptions requestCsvOptions = CsvOptions.builder()
+                    .delimiter(modelCsvOptions.getDelimiter())
+                    .build();
+            requestFormatOptionsBuilder
+                    .csv(requestCsvOptions);
+        }
+        return requestFormatOptionsBuilder.build();
     }
 
     public static Map<String, String> buildTagInputMap(final List<Tag> tagList) {
@@ -125,33 +132,38 @@ public class ModelHelper {
     }
 
     public static software.amazon.databrew.dataset.FormatOptions buildModelFormatOptions(final FormatOptions requestFormatOptions) {
-        software.amazon.databrew.dataset.FormatOptions modelFormatOptions = new software.amazon.databrew.dataset.FormatOptions();
+        if (requestFormatOptions == null) return null;
+        software.amazon.databrew.dataset.FormatOptions.FormatOptionsBuilder modelFormatOptionsBuilder = new software.amazon.databrew.dataset.FormatOptions().builder();
         software.amazon.databrew.dataset.JsonOptions modelJsonOptions = new software.amazon.databrew.dataset.JsonOptions();
         software.amazon.databrew.dataset.ExcelOptions modelExcelOptions = new software.amazon.databrew.dataset.ExcelOptions();
-        if (requestFormatOptions != null) {
-            if (requestFormatOptions.json() != null) {
-                modelFormatOptions = modelFormatOptions.builder()
-                        .json(modelJsonOptions.builder().multiLine(requestFormatOptions.json().multiLine()).build())
-                        .build();
-            }
-            else if (requestFormatOptions.excel() != null){
-                if (requestFormatOptions.excel().sheetIndexes() != null && requestFormatOptions.excel().sheetIndexes().size() >= 1) {
-                    modelFormatOptions = modelFormatOptions.builder()
-                            .excel(modelExcelOptions.builder()
-                                    .sheetIndexes(requestFormatOptions.excel().sheetIndexes())
-                                    .build())
-                            .build();
-                }
-                else {
-                    modelFormatOptions = modelFormatOptions.builder()
-                            .excel(modelExcelOptions.builder()
-                                    .sheetNames(requestFormatOptions.excel().sheetNames())
-                                    .build())
-                            .build();
-                }
-            }
+        software.amazon.databrew.dataset.CsvOptions modelCsvOptions = new software.amazon.databrew.dataset.CsvOptions();
+        if (requestFormatOptions.json() != null) {
+            modelFormatOptionsBuilder
+                        .json(modelJsonOptions.builder()
+                                .multiLine(requestFormatOptions.json().multiLine())
+                                .build());
         }
-        return modelFormatOptions;
+        if (requestFormatOptions.excel() != null){
+            if (requestFormatOptions.excel().sheetIndexes() != null && requestFormatOptions.excel().sheetIndexes().size() >= 1) {
+                modelFormatOptionsBuilder
+                        .excel(modelExcelOptions.builder()
+                                .sheetIndexes(requestFormatOptions.excel().sheetIndexes())
+                                .build());
+            }
+            else {
+                modelFormatOptionsBuilder.
+                        excel(modelExcelOptions.builder()
+                                .sheetNames(requestFormatOptions.excel().sheetNames())
+                                .build());
+                }
+        }
+        if (requestFormatOptions.csv() != null) {
+            modelFormatOptionsBuilder
+                    .csv(modelCsvOptions.builder()
+                                .delimiter(requestFormatOptions.csv().delimiter())
+                                .build());
+        }
+        return modelFormatOptionsBuilder.build();
     }
 
     public static List<Tag> buildModelTags(final Map<String, String> tags) {

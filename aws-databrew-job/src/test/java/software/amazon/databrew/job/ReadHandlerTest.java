@@ -127,4 +127,49 @@ public class ReadHandlerTest {
         assertThat(response.getResourceModels()).isNull();
         assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.NotFound);
     }
+
+    @Test
+    public void handleRequest_SuccessfulRead_OutputFormatOptions_Shown() {
+        final ReadHandler handler = new ReadHandler();
+
+        Job job = Job.builder()
+                .type(TestUtil.JOB_TYPE_RECIPE)
+                .name(TestUtil.JOB_NAME)
+                .outputs(TestUtil.CSV_OUTPUT_VALID_DELIMITER)
+                .build();
+
+        final DescribeJobResponse describeJobResponse = DescribeJobResponse.builder()
+                .type(job.type())
+                .name(job.name())
+                .outputs(TestUtil.CSV_OUTPUT_VALID_DELIMITER)
+                .build();
+
+        doReturn(describeJobResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder().build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+        TestUtil.assertThatJobModelsAreEqual(response.getResourceModel(), job);
+        assertThat(response.getResourceModel().getOutputs()).isNotNull();
+        assertThat(response.getResourceModel().getOutputs().size()).isEqualTo(1);
+        assertThat(response.getResourceModel().getOutputs().get(0).getFormatOptions()).isNotNull();
+        assertThat(response.getResourceModel().getOutputs().get(0).getFormatOptions().getCsv()).isNotNull();
+        assertThat(response.getResourceModel().getOutputs().get(0).getFormatOptions().getCsv().getDelimiter())
+                .isEqualTo(TestUtil.PIPE_CSV_DELIMITER);
+    }
 }

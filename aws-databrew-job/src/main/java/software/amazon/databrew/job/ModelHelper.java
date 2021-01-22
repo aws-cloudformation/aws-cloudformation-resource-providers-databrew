@@ -5,7 +5,8 @@ import software.amazon.awssdk.services.databrew.model.Job;
 import software.amazon.awssdk.services.databrew.model.S3Location;
 import software.amazon.awssdk.services.databrew.model.Output;
 import software.amazon.awssdk.services.databrew.model.RecipeReference;
-
+import software.amazon.awssdk.services.databrew.model.OutputFormatOptions;
+import software.amazon.awssdk.services.databrew.model.CsvOutputOptions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -88,6 +89,31 @@ public class ModelHelper {
                 .build();
     }
 
+    public static software.amazon.databrew.job.OutputFormatOptions buildModelFormatOptions(final OutputFormatOptions requestFormatOptions) {
+        if (requestFormatOptions == null) return null;
+        software.amazon.databrew.job.OutputFormatOptions.OutputFormatOptionsBuilder modelFormatOptionsBuilder = new software.amazon.databrew.job.OutputFormatOptions().builder();
+        if (requestFormatOptions.csv() != null) {
+            software.amazon.databrew.job.CsvOutputOptions modelCsvOutputOptions = new software.amazon.databrew.job.CsvOutputOptions();
+            modelFormatOptionsBuilder
+                    .csv(modelCsvOutputOptions.builder()
+                            .delimiter(requestFormatOptions.csv().delimiter())
+                            .build());
+        }
+        return modelFormatOptionsBuilder.build();
+    }
+
+    public static OutputFormatOptions buildRequestFormatOptions(final software.amazon.databrew.job.OutputFormatOptions modelFormatOptions) {
+        if (modelFormatOptions == null) return null;
+        OutputFormatOptions.Builder requestOutputFormatOptionsBuilder = OutputFormatOptions.builder();
+        if (modelFormatOptions.getCsv() != null) {
+            CsvOutputOptions requestCsvOutputOptions = CsvOutputOptions.builder()
+                    .delimiter(modelFormatOptions.getCsv().getDelimiter())
+                    .build();
+            requestOutputFormatOptionsBuilder.csv(requestCsvOutputOptions);
+        }
+        return requestOutputFormatOptionsBuilder.build();
+    }
+
     public static software.amazon.databrew.job.S3Location buildModelS3Location(final S3Location requestS3Location) {
         return requestS3Location == null ? null : software.amazon.databrew.job.S3Location.builder()
                 .bucket(requestS3Location.bucket())
@@ -102,6 +128,7 @@ public class ModelHelper {
             Output requestOutput = Output.builder()
                     .compressionFormat(output.getCompressionFormat())
                     .format(output.getFormat())
+                    .formatOptions(buildRequestFormatOptions(output.getFormatOptions()))
                     .partitionColumns(output.getPartitionColumns())
                     .location(buildRequestS3Location(output.getLocation()))
                     .overwrite(output.getOverwrite())
@@ -118,6 +145,7 @@ public class ModelHelper {
             software.amazon.databrew.job.Output modelOutput = new software.amazon.databrew.job.Output().builder()
                     .compressionFormat(output.compressionFormatAsString())
                     .format(output.formatAsString())
+                    .formatOptions(buildModelFormatOptions(output.formatOptions()))
                     .partitionColumns(output.partitionColumns())
                     .location(buildModelS3Location(output.location()))
                     .overwrite(output.overwrite())
