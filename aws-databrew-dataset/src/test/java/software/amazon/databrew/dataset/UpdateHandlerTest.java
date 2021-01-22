@@ -174,4 +174,98 @@ public class UpdateHandlerTest {
         assertThat(response.getResourceModels()).isNull();
         assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.ServiceInternalError);
     }
+
+    @Test
+    public void handleRequest_SuccessfulUpdate_ValidCsvDelimiter() {
+        final UpdateHandler handler = new UpdateHandler();
+        final UpdateDatasetResponse updateDatasetResponse = UpdateDatasetResponse.builder().build();
+        doReturn(updateDatasetResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .input(TestUtil.CSV_S3_INPUT)
+                .formatOptions(TestUtil.CSV_FORMAT_OPTIONS)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+        assertThat(response.getResourceModel().getFormatOptions()).isNotNull();
+        assertThat(response.getResourceModel().getFormatOptions().getCsv()).isNotNull();
+        assertThat(response.getResourceModel().getFormatOptions().getCsv().getDelimiter()).isEqualTo(TestUtil.PIPE_CSV_DELIMITER);
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
+
+    @Test
+    public void handleRequest_FailedUpdate_InvalidCsvDelimiter() {
+        doThrow(ValidationException.class)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final UpdateHandler handler = new UpdateHandler();
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .formatOptions(TestUtil.INVALID_CSV_FORMAT_OPTIONS)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+        assertThat(response.getResourceModel()).isNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
+    }
+
+    @Test
+    public void handleRequest_SuccessfulUpdate_TsvDataset() {
+        final UpdateHandler handler = new UpdateHandler();
+        final UpdateDatasetResponse updateDatasetResponse = UpdateDatasetResponse.builder().build();
+        doReturn(updateDatasetResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .input(TestUtil.TSV_S3_INPUT)
+                .formatOptions(TestUtil.TSV_FORMAT_OPTIONS)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+        assertThat(response.getResourceModel().getFormatOptions()).isNotNull();
+        assertThat(response.getResourceModel().getFormatOptions().getCsv()).isNotNull();
+        assertThat(response.getResourceModel().getFormatOptions().getCsv().getDelimiter()).isEqualTo(TestUtil.TAB_CSV_DELIMITER);
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
 }

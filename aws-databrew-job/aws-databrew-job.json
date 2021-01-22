@@ -131,6 +131,28 @@
         "Bucket"
       ]
     },
+    "CsvOutputOptions": {
+      "description": "Output Csv options",
+      "type": "object",
+      "properties": {
+        "Delimiter": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "OutputFormatOptions": {
+      "description": "Format options for job Output",
+      "type": "object",
+      "properties": {
+        "Csv": {
+          "$ref": "#/definitions/CsvOutputOptions"
+        }
+      },
+      "additionalProperties": false
+    },
     "Output": {
       "type": "object",
       "properties": {
@@ -159,6 +181,9 @@
             "XML"
           ],
           "type": "string"
+        },
+        "FormatOptions": {
+          "$ref": "#/definitions/OutputFormatOptions"
         },
         "PartitionColumns": {
           "type": "array",
