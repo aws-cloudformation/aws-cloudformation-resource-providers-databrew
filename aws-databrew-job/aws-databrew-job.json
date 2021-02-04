@@ -61,19 +61,7 @@
     },
     "OutputLocation": {
       "description": "Output location",
-      "type": "object",
-      "properties": {
-        "Bucket": {
-          "type": "string"
-        },
-        "Key": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": false,
-      "required": [
-        "Bucket"
-      ]
+      "$ref": "#/definitions/OutputLocation"
     },
     "ProjectName": {
       "description": "Project name",
@@ -83,20 +71,7 @@
     },
     "Recipe": {
       "type": "object",
-      "properties": {
-        "Name": {
-          "description": "Recipe name",
-          "type": "string"
-        },
-        "Version": {
-          "description": "Recipe version",
-          "type": "string"
-        }
-      },
-      "additionalProperties": false,
-      "required": [
-        "Name"
-      ]
+      "$ref": "#/definitions/Recipe"
     },
     "RoleArn": {
       "description": "Role arn",
@@ -115,15 +90,7 @@
     },
     "JobSample": {
       "description": "Job Sample",
-      "type": "object",
-      "properties": {
-        "Mode": {
-          "$ref": "#/definitions/SampleMode"
-        },
-        "Size": {
-          "$ref": "#/definitions/JobSize"
-        }
-      }
+      "$ref": "#/definitions/JobSample"
     }
   },
   "definitions": {
@@ -164,6 +131,22 @@
         }
       },
       "additionalProperties": false
+    },
+    "OutputLocation": {
+      "description": "Output location",
+      "type": "object",
+      "properties": {
+        "Bucket": {
+          "type": "string"
+        },
+        "Key": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "Bucket"
+      ]
     },
     "Output": {
       "type": "object",
@@ -216,6 +199,23 @@
         "Location"
       ]
     },
+    "Recipe": {
+      "type": "object",
+      "properties": {
+        "Name": {
+          "description": "Recipe name",
+          "type": "string"
+        },
+        "Version": {
+          "description": "Recipe version",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "Name"
+      ]
+    },
     "Tag": {
       "description": "A key-value pair to associate with a resource.",
       "type": "object",
@@ -249,6 +249,19 @@
       "description": "Sample configuration size for profile jobs.",
       "format": "int64",
       "type": "integer"
+    },
+    "JobSample": {
+      "description": "Job Sample",
+      "type": "object",
+      "properties": {
+        "Mode": {
+          "$ref": "#/definitions/SampleMode"
+        },
+        "Size": {
+          "$ref": "#/definitions/JobSize"
+        }
+      },
+      "additionalProperties": false
     }
   },
   "additionalProperties": false,

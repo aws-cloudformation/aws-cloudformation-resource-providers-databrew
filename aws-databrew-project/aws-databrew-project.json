@@ -26,6 +26,19 @@
       "type": "string"
     },
     "Sample": {
+      "description": "Sample",
+      "$ref": "#/definitions/Sample"
+    },
+    "Tags": {
+      "type": "array",
+      "uniqueItems": false,
+      "items": {
+        "$ref": "#/definitions/Tag"
+      }
+    }
+  },
+  "definitions": {
+    "Sample": {
       "type": "object",
       "properties": {
         "Size": {
@@ -48,15 +61,6 @@
         "Type"
       ]
     },
-    "Tags": {
-      "type": "array",
-      "uniqueItems": false,
-      "items": {
-        "$ref": "#/definitions/Tag"
-      }
-    }
-  },
-  "definitions": {
     "Tag": {
       "description": "A key-value pair to associate with a resource.",
       "type": "object",

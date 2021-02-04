@@ -1,5 +1,6 @@
 package software.amazon.databrew.dataset;
 
+import software.amazon.awssdk.services.databrew.model.CreateDatasetResponse;
 import software.amazon.awssdk.services.databrew.model.DataBrewException;
 import software.amazon.awssdk.services.databrew.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.databrew.model.UpdateDatasetResponse;
@@ -403,5 +404,224 @@ public class UpdateHandlerTest {
         assertThat(response.getResourceModel()).isNull();
         assertThat(response.getResourceModels()).isNull();
         assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
+    }
+
+    @Test
+    public void handleRequest_SuccessfulUpdate_ValidFilesLimit() {
+        final UpdateHandler handler = new UpdateHandler();
+        final UpdateDatasetResponse updateDatasetResponse = UpdateDatasetResponse.builder().build();
+        doReturn(updateDatasetResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .format(TestUtil.JSON_FORMAT)
+                .input(TestUtil.S3_FOLDER_INPUT)
+                .formatOptions(TestUtil.JSON_FORMAT_OPTIONS)
+                .pathOptions(TestUtil.PATH_OPTIONS_WITH_VALID_FILES_LIMIT)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+        assertThat(response.getResourceModel().getPathOptions()).isNotNull();
+        assertThat(response.getResourceModel().getPathOptions().getFilesLimit()).isNotNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
+
+    @Test
+    public void handleRequest_FailedUpdate_InvalidFilesLimit() {
+        doThrow(ValidationException.class)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final UpdateHandler handler = new UpdateHandler();
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .input(TestUtil.S3_FOLDER_INPUT)
+                .pathOptions(TestUtil.PATH_OPTIONS_WITH_INVALID_FILES_LIMIT)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+        assertThat(response.getResourceModel()).isNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
+    }
+
+    @Test
+    public void handleRequest_SuccessfulUpdate_ValidLastModified() {
+        final UpdateHandler handler = new UpdateHandler();
+        final UpdateDatasetResponse updateDatasetResponse = UpdateDatasetResponse.builder().build();
+        doReturn(updateDatasetResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .format(TestUtil.JSON_FORMAT)
+                .input(TestUtil.S3_REGEX_INPUT)
+                .formatOptions(TestUtil.JSON_FORMAT_OPTIONS)
+                .pathOptions(TestUtil.PATH_OPTIONS_WITH_VALID_LAST_MODIFIED)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+        assertThat(response.getResourceModel().getPathOptions()).isNotNull();
+        assertThat(response.getResourceModel().getPathOptions().getLastModifiedDateCondition()).isNotNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
+
+    @Test
+    public void handleRequest_FailedUpdate_InvalidLastModified() {
+        doThrow(ValidationException.class)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final UpdateHandler handler = new UpdateHandler();
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .input(TestUtil.S3_REGEX_INPUT)
+                .pathOptions(TestUtil.PATH_OPTIONS_WITH_INVALID_LAST_MODIFIED)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+        assertThat(response.getResourceModel()).isNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
+    }
+
+    @Test
+    public void handleRequest_SuccessfulUpdate_ValidPathParam() {
+        final UpdateHandler handler = new UpdateHandler();
+        final UpdateDatasetResponse updateDatasetResponse = UpdateDatasetResponse.builder().build();
+        doReturn(updateDatasetResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .format(TestUtil.JSON_FORMAT)
+                .input(TestUtil.S3_PARAM_INPUT)
+                .formatOptions(TestUtil.JSON_FORMAT_OPTIONS)
+                .pathOptions(TestUtil.PATH_OPTIONS_WITH_VALID_PARAM)
+                .tags(ModelHelper.buildModelTags(TestUtil.sampleTags()))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+        assertThat(response.getResourceModel().getPathOptions()).isNotNull();
+        assertThat(response.getResourceModel().getPathOptions().getParameters()).isNotNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
+
+    @Test
+    public void handleRequest_FailedUpdate_InvalidPathParam() {
+        doThrow(ValidationException.class)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final UpdateHandler handler = new UpdateHandler();
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .input(TestUtil.S3_PARAM_INPUT)
+                .pathOptions(TestUtil.PATH_OPTIONS_WITH_INVALID_PARAM)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+        assertThat(response.getResourceModel()).isNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
+    }
+
+    @Test
+    public void handleRequest_SuccessfulUpdate_DatabaseInputDefinition() {
+        final UpdateHandler handler = new UpdateHandler();
+        final UpdateDatasetResponse updateDatasetResponse = UpdateDatasetResponse.builder().build();
+        doReturn(updateDatasetResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .input(TestUtil.UPDATED_DATABASE_INPUT)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+        assertThat(response.getResourceModel().getInput()).isNotNull();
+        assertThat(response.getResourceModel().getInput().getDatabaseInputDefinition()).isNotNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
     }
 }

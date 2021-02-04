@@ -29,6 +29,7 @@ public class UpdateHandler extends BaseHandler<CallbackContext> {
                 .name(datasetName)
                 .format(model.getFormat())
                 .formatOptions(ModelHelper.buildRequestFormatOptions(model.getFormatOptions()))
+                .pathOptions(ModelHelper.buildRequestPathOptions(model.getPathOptions()))
                 .input(ModelHelper.buildRequestInput(model.getInput()))
                 .build();
 

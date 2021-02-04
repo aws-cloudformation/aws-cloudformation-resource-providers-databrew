@@ -46,6 +46,8 @@ public class ReadHandlerTest {
         Dataset dataset = Dataset.builder()
                 .name(TestUtil.DATASET_NAME)
                 .formatOptions(ModelHelper.buildRequestFormatOptions(TestUtil.JSON_FORMAT_OPTIONS))
+                .pathOptions(ModelHelper.buildRequestPathOptions(TestUtil.PATH_OPTIONS_WITH_VALID_PARAM))
+                .tags(TestUtil.sampleTags())
                 .build();
 
         final DescribeDatasetResponse describeResult = DescribeDatasetResponse.builder()

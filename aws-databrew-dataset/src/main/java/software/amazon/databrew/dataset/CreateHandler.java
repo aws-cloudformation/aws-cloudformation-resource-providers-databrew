@@ -33,8 +33,9 @@ public class CreateHandler extends BaseHandler<CallbackContext> {
                 .name(datasetName)
                 .format(model.getFormat())
                 .formatOptions(ModelHelper.buildRequestFormatOptions(model.getFormatOptions()))
+                .pathOptions(ModelHelper.buildRequestPathOptions(model.getPathOptions()))
                 .input(ModelHelper.buildRequestInput(model.getInput()))
-                .tags(ModelHelper.buildTagInputMap(model.getTags()))
+                .tags(ModelHelper.buildMapFromList(model.getTags(), tag -> tag.getKey(), tag -> tag.getValue()))
                 .build();
 
         try {

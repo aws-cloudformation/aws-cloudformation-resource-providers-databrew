@@ -1,18 +1,29 @@
 package software.amazon.databrew.dataset;
 
-import software.amazon.awssdk.services.databrew.model.DescribeDatasetResponse;
-import software.amazon.awssdk.services.databrew.model.Dataset;
-import software.amazon.awssdk.services.databrew.model.ExcelOptions;
-import software.amazon.awssdk.services.databrew.model.FormatOptions;
-import software.amazon.awssdk.services.databrew.model.JsonOptions;
 import software.amazon.awssdk.services.databrew.model.CsvOptions;
+import software.amazon.awssdk.services.databrew.model.DataCatalogInputDefinition;
+import software.amazon.awssdk.services.databrew.model.Dataset;
+import software.amazon.awssdk.services.databrew.model.DatasetParameter;
+import software.amazon.awssdk.services.databrew.model.DatetimeOptions;
+import software.amazon.awssdk.services.databrew.model.DescribeDatasetResponse;
+import software.amazon.awssdk.services.databrew.model.ExcelOptions;
+import software.amazon.awssdk.services.databrew.model.FilesLimit;
+import software.amazon.awssdk.services.databrew.model.FilterExpression;
+import software.amazon.awssdk.services.databrew.model.FormatOptions;
+import software.amazon.awssdk.services.databrew.model.Input;
+import software.amazon.awssdk.services.databrew.model.JsonOptions;
+import software.amazon.awssdk.services.databrew.model.PathOptions;
 import software.amazon.awssdk.services.databrew.model.S3Location;
 import software.amazon.awssdk.services.databrew.model.DataCatalogInputDefinition;
+import software.amazon.awssdk.services.databrew.model.DatabaseInputDefinition;
 import software.amazon.awssdk.services.databrew.model.Input;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class ModelHelper {
     public static ResourceModel constructModel(final DescribeDatasetResponse dataset) {
@@ -22,6 +33,7 @@ public class ModelHelper {
                 .format(dataset.format() != null ? dataset.format().toString() : null)
                 .input(buildModelInput(dataset.input()))
                 .formatOptions(buildModelFormatOptions(dataset.formatOptions()))
+                .pathOptions(buildModelPathOptions(dataset.pathOptions()))
                 .tags(tags != null ? buildModelTags(tags) : null)
                 .build();
     }
@@ -33,6 +45,7 @@ public class ModelHelper {
                 .format(dataset.format() != null ? dataset.format().toString() : null)
                 .input(buildModelInput(dataset.input()))
                 .formatOptions(buildModelFormatOptions(dataset.formatOptions()))
+                .pathOptions(buildModelPathOptions(dataset.pathOptions()))
                 .tags(tags != null ? buildModelTags(tags) : null)
                 .build();
     }
@@ -52,11 +65,20 @@ public class ModelHelper {
                 .build();
     }
 
+    public static DatabaseInputDefinition buildRequestDatabaseInputDefinition(final software.amazon.databrew.dataset.DatabaseInputDefinition modelDatabaseInputDefinition) {
+        return modelDatabaseInputDefinition == null ? null : DatabaseInputDefinition.builder()
+                .glueConnectionName(modelDatabaseInputDefinition.getGlueConnectionName())
+                .databaseTableName(modelDatabaseInputDefinition.getDatabaseTableName())
+                .tempDirectory(buildRequestS3Location(modelDatabaseInputDefinition.getTempDirectory()))
+                .build();
+    }
+
     public static Input buildRequestInput(final software.amazon.databrew.dataset.Input modelInput) {
         if (modelInput == null) return null;
         return Input.builder()
                 .s3InputDefinition(buildRequestS3Location(modelInput.getS3InputDefinition()))
                 .dataCatalogInputDefinition(buildRequestDataCatalogInputDefinition(modelInput.getDataCatalogInputDefinition()))
+                .databaseInputDefinition(buildRequestDatabaseInputDefinition(modelInput.getDatabaseInputDefinition()))
                 .build();
     }
 
@@ -76,11 +98,20 @@ public class ModelHelper {
                 .build();
     }
 
+    public static software.amazon.databrew.dataset.DatabaseInputDefinition buildModelDatabaseInputDefinition(final DatabaseInputDefinition requestDatabaseInputDefinition) {
+        return requestDatabaseInputDefinition == null ? null : software.amazon.databrew.dataset.DatabaseInputDefinition.builder()
+                .glueConnectionName(requestDatabaseInputDefinition.glueConnectionName())
+                .databaseTableName(requestDatabaseInputDefinition.databaseTableName())
+                .tempDirectory(buildModelS3Location(requestDatabaseInputDefinition.tempDirectory()))
+                .build();
+    }
+
     public static software.amazon.databrew.dataset.Input buildModelInput(final Input requestInput) {
         if (requestInput == null) return null;
         return software.amazon.databrew.dataset.Input.builder()
                 .s3InputDefinition(buildModelS3Location(requestInput.s3InputDefinition()))
                 .dataCatalogInputDefinition(buildModelDataCatalogInputDefinition(requestInput.dataCatalogInputDefinition()))
+                .databaseInputDefinition(buildModelDatabaseInputDefinition(requestInput.databaseInputDefinition()))
                 .build();
     }
 
@@ -125,13 +156,13 @@ public class ModelHelper {
         return requestFormatOptionsBuilder.build();
     }
 
-    public static Map<String, String> buildTagInputMap(final List<Tag> tagList) {
-        Map<String, String> tagMap = new HashMap<>();
+    public static <T, K, V> Map<K, V> buildMapFromList(final List<T> tagList, Function<T, K> keyProvider, Function<T, V> valueProvider) {
+        Map<K, V> tagMap = new HashMap<K, V>();
         // return null if no Tag specified.
         if (tagList == null) return null;
 
-        for (Tag tag : tagList) {
-            tagMap.put(tag.getKey(), tag.getValue());
+        for (T tag : tagList) {
+            tagMap.put(keyProvider.apply(tag), valueProvider.apply(tag));
         }
         return tagMap;
     }
@@ -144,25 +175,24 @@ public class ModelHelper {
         software.amazon.databrew.dataset.CsvOptions modelCsvOptions = new software.amazon.databrew.dataset.CsvOptions();
         if (requestFormatOptions.json() != null) {
             modelFormatOptionsBuilder
-                        .json(modelJsonOptions.builder()
-                                .multiLine(requestFormatOptions.json().multiLine())
-                                .build());
+                    .json(modelJsonOptions.builder()
+                            .multiLine(requestFormatOptions.json().multiLine())
+                            .build());
         }
-        if (requestFormatOptions.excel() != null){
+        if (requestFormatOptions.excel() != null) {
             if (requestFormatOptions.excel().sheetIndexes() != null && requestFormatOptions.excel().sheetIndexes().size() >= 1) {
                 modelFormatOptionsBuilder
                         .excel(modelExcelOptions.builder()
                                 .sheetIndexes(requestFormatOptions.excel().sheetIndexes())
                                 .headerRow(requestFormatOptions.excel().headerRow())
                                 .build());
-            }
-            else {
+            } else {
                 modelFormatOptionsBuilder.
                         excel(modelExcelOptions.builder()
                                 .sheetNames(requestFormatOptions.excel().sheetNames())
                                 .headerRow(requestFormatOptions.excel().headerRow())
                                 .build());
-                }
+            }
         }
         if (requestFormatOptions.csv() != null) {
             modelFormatOptionsBuilder
@@ -174,9 +204,134 @@ public class ModelHelper {
         return modelFormatOptionsBuilder.build();
     }
 
+    public static software.amazon.databrew.dataset.PathOptions buildModelPathOptions(final PathOptions requestPathOptions) {
+        if (requestPathOptions == null) return null;
+        software.amazon.databrew.dataset.PathOptions.PathOptionsBuilder modelPathOptionsBuilder = new software.amazon.databrew.dataset.PathOptions().builder();
+        software.amazon.databrew.dataset.FilesLimit.FilesLimitBuilder filesLimitBuilder = new software.amazon.databrew.dataset.FilesLimit().builder();
+        FilesLimit filesLimit = requestPathOptions.filesLimit();
+        if (filesLimit != null) {
+            modelPathOptionsBuilder
+                    .filesLimit(filesLimitBuilder
+                            .maxFiles(filesLimit.maxFiles())
+                            .orderedBy(filesLimit.orderedByAsString())
+                            .order(filesLimit.orderAsString())
+                            .build());
+        }
+        FilterExpression filterExpression = requestPathOptions.lastModifiedDateCondition();
+        if (filterExpression != null) {
+            modelPathOptionsBuilder
+                    .lastModifiedDateCondition(getModelFilterExpression(filterExpression));
+        }
+        if (requestPathOptions.hasParameters()) {
+            modelPathOptionsBuilder
+                    .parameters(requestPathOptions.parameters().entrySet().stream()
+                            .map(requestParameter ->
+                                    PathParameter.builder()
+                                            .pathParameterName(requestParameter.getKey())
+                                            .datasetParameter(getDatasetParameter(requestParameter.getValue()))
+                                            .build()).collect(Collectors.toList())
+                    ).build();
+        }
+        return modelPathOptionsBuilder.build();
+    }
+
+    private static software.amazon.databrew.dataset.FilterExpression getModelFilterExpression(FilterExpression filterExpression) {
+        return new software.amazon.databrew.dataset.FilterExpression().builder()
+                .expression(filterExpression.expression())
+                .valuesMap(filterExpression.valuesMap().entrySet().stream()
+                        .map(entry -> FilterValue.builder()
+                                .valueReference(entry.getKey())
+                                .value(entry.getValue())
+                                .build())
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+
+    public static PathOptions buildRequestPathOptions(final software.amazon.databrew.dataset.PathOptions pathOptions) {
+        if (pathOptions == null) return null;
+        PathOptions.Builder pathOptionsBuilder = PathOptions.builder();
+        software.amazon.databrew.dataset.FilesLimit filesLimit = pathOptions.getFilesLimit();
+        if (filesLimit != null) {
+            FilesLimit.Builder filesLimitBuilder = FilesLimit.builder();
+            pathOptionsBuilder
+                    .filesLimit(filesLimitBuilder
+                            .maxFiles(filesLimit.getMaxFiles())
+                            .orderedBy(filesLimit.getOrderedBy())
+                            .order(filesLimit.getOrder())
+                            .build());
+        }
+        software.amazon.databrew.dataset.FilterExpression lastModifiedDateCondition = pathOptions.getLastModifiedDateCondition();
+        if (lastModifiedDateCondition != null) {
+            pathOptionsBuilder.lastModifiedDateCondition(getFilterExpression(lastModifiedDateCondition));
+        }
+        List<PathParameter> parameters = pathOptions.getParameters();
+        if (parameters != null) {
+            pathOptionsBuilder
+                    .parameters(buildMapFromList(pathOptions.getParameters(),
+                            param -> param.getPathParameterName(),
+                            param -> getModelDatasetParameter(param.getDatasetParameter())))
+                    .build();
+        }
+        return pathOptionsBuilder.build();
+    }
+
+    private static DatasetParameter getModelDatasetParameter(software.amazon.databrew.dataset.DatasetParameter datasetParameter) {
+        DatasetParameter.Builder datasetParameterBuilder = DatasetParameter.builder();
+        datasetParameterBuilder.name(datasetParameter.getName());
+        datasetParameterBuilder.type(datasetParameter.getType());
+        datasetParameterBuilder.createColumn(datasetParameter.getCreateColumn());
+        software.amazon.databrew.dataset.FilterExpression filterExpression = datasetParameter.getFilter();
+        if (filterExpression != null) {
+            datasetParameterBuilder.filter(getFilterExpression(filterExpression));
+        }
+        software.amazon.databrew.dataset.DatetimeOptions datetimeOptions = datasetParameter.getDatetimeOptions();
+        if (datetimeOptions != null) {
+
+            datasetParameterBuilder.datetimeOptions(DatetimeOptions.builder()
+                    .format(datetimeOptions.getFormat())
+                    .localeCode(datetimeOptions.getLocaleCode())
+                    .timezoneOffset(datetimeOptions.getTimezoneOffset())
+                    .build());
+        }
+        return datasetParameterBuilder.build();
+    }
+
+    private static FilterExpression getFilterExpression(software.amazon.databrew.dataset.FilterExpression filterExpression) {
+        return FilterExpression.builder()
+                .expression(filterExpression.getExpression())
+                .valuesMap(buildMapFromList(filterExpression.getValuesMap(),
+                        filterValue -> filterValue.getValueReference(),
+                        filterValue -> filterValue.getValue()))
+                .build();
+    }
+
+
+    private static software.amazon.databrew.dataset.DatasetParameter getDatasetParameter(DatasetParameter requestDatasetParameter) {
+        software.amazon.databrew.dataset.DatasetParameter.DatasetParameterBuilder modelDatasetBuilder = new software.amazon.databrew.dataset.DatasetParameter().builder();
+        modelDatasetBuilder.name(requestDatasetParameter.name());
+        modelDatasetBuilder.type(requestDatasetParameter.typeAsString());
+        modelDatasetBuilder.createColumn(requestDatasetParameter.createColumn());
+        DatetimeOptions datetimeOptions = requestDatasetParameter.datetimeOptions();
+        if (datetimeOptions != null) {
+            software.amazon.databrew.dataset.DatetimeOptions.DatetimeOptionsBuilder datetimeOptionsBuilder = new software.amazon.databrew.dataset.DatetimeOptions().builder();
+            modelDatasetBuilder.datetimeOptions(
+                    datetimeOptionsBuilder
+                            .format(datetimeOptions.format())
+                            .localeCode(datetimeOptions.localeCode())
+                            .timezoneOffset(datetimeOptions.timezoneOffset())
+                            .build());
+        }
+        FilterExpression filterExpression = requestDatasetParameter.filter();
+        if (filterExpression != null) {
+            modelDatasetBuilder.filter(getModelFilterExpression(filterExpression));
+        }
+        return modelDatasetBuilder.build();
+    }
+
     public static List<Tag> buildModelTags(final Map<String, String> tags) {
-        List<Tag> tagArrayList = new ArrayList<>();
         if (tags == null) return null;
+        List<Tag> tagArrayList = new ArrayList<>();
         tags.forEach((k, v) -> tagArrayList.add(Tag.builder().key(k).value(v).build()));
         return tagArrayList;
     }
