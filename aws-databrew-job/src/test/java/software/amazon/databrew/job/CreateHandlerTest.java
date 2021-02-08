@@ -182,6 +182,181 @@ public class CreateHandlerTest {
         assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.AlreadyExists);
     }
 
+    @Test
+    public void handleRequest_WithFullDatasetMode_SimpleSuccess_ProfileJob() {
+        final CreateHandler handler = new CreateHandler();
+        final CreateProfileJobResponse createProfileJobResponse = CreateProfileJobResponse.builder().build();
+        doReturn(createProfileJobResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder()
+                .type(JOB_TYPE_PROFILE)
+                .name(JOB_NAME)
+                .tags(ModelHelper.buildModelTags(TestUtil.sampleTags()))
+                .jobSample(ModelHelper.buildRequestJobSample(TestUtil.fullDatasetModeJobSample()))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
+
+    @Test
+    public void handleRequest_WithCustomRowsMode_SimpleSuccess_ProfileJob() {
+        final CreateHandler handler = new CreateHandler();
+        final CreateProfileJobResponse createProfileJobResponse = CreateProfileJobResponse.builder().build();
+        doReturn(createProfileJobResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder()
+                .type(JOB_TYPE_PROFILE)
+                .name(JOB_NAME)
+                .tags(ModelHelper.buildModelTags(TestUtil.sampleTags()))
+                .jobSample(ModelHelper.buildRequestJobSample(TestUtil.customRowsModeJobSample()))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
+
+    @Test
+    public void handleRequest_WithInvalidJobSample1_CreateFailed_ProfileJob() {
+        doThrow(ValidationException.class)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final CreateHandler handler = new CreateHandler();
+        final ResourceModel model = ResourceModel.builder()
+                .type(JOB_TYPE_PROFILE)
+                .name(JOB_NAME)
+                .tags(ModelHelper.buildModelTags(TestUtil.sampleTags()))
+                .jobSample(ModelHelper.buildRequestJobSample(TestUtil.invalidJobSample1()))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+        assertThat(response.getResourceModel()).isNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
+    }
+
+    @Test
+    public void handleRequest_WithInvalidJobSample2_CreateFailed_ProfileJob() {
+        doThrow(ValidationException.class)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final CreateHandler handler = new CreateHandler();
+        final ResourceModel model = ResourceModel.builder()
+                .type(JOB_TYPE_PROFILE)
+                .name(JOB_NAME)
+                .tags(ModelHelper.buildModelTags(TestUtil.sampleTags()))
+                .jobSample(ModelHelper.buildRequestJobSample(TestUtil.invalidJobSample2()))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+        assertThat(response.getResourceModel()).isNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
+    }
+
+    @Test
+    public void handleRequest_WithInvalidJobSample3_CreateFailed_ProfileJob() {
+        doThrow(ValidationException.class)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final CreateHandler handler = new CreateHandler();
+        final ResourceModel model = ResourceModel.builder()
+                .type(JOB_TYPE_PROFILE)
+                .name(JOB_NAME)
+                .tags(ModelHelper.buildModelTags(TestUtil.sampleTags()))
+                .jobSample(ModelHelper.buildRequestJobSample(TestUtil.invalidJobSample3()))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+        assertThat(response.getResourceModel()).isNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
+    }
+
+    @Test
+    public void handleRequest_WithInvalidJobSample4_CreateFailed_ProfileJob() {
+        doThrow(ValidationException.class)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final CreateHandler handler = new CreateHandler();
+        final ResourceModel model = ResourceModel.builder()
+                .type(JOB_TYPE_PROFILE)
+                .name(JOB_NAME)
+                .tags(ModelHelper.buildModelTags(TestUtil.sampleTags()))
+                .jobSample(ModelHelper.buildRequestJobSample(TestUtil.invalidJobSample4()))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+        assertThat(response.getResourceModel()).isNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
+    }
 
     @Test
     public void handleRequest_SimpleSuccess_RecipeJob() {

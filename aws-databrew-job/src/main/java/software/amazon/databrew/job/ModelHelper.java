@@ -7,6 +7,7 @@ import software.amazon.awssdk.services.databrew.model.Output;
 import software.amazon.awssdk.services.databrew.model.RecipeReference;
 import software.amazon.awssdk.services.databrew.model.OutputFormatOptions;
 import software.amazon.awssdk.services.databrew.model.CsvOutputOptions;
+import software.amazon.awssdk.services.databrew.model.SampleMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,8 +38,10 @@ public class ModelHelper {
                 .build();
         if (job.typeAsString().equals(Type.RECIPE.toString()))
             model.setOutputs(buildModelOutputs(job.outputs()));
-        else if (job.typeAsString().equals(Type.PROFILE.toString()))
+        else if (job.typeAsString().equals(Type.PROFILE.toString())) {
             model.setOutputLocation(buildModelOutputLocation(job.outputs()));
+            model.setJobSample(buildRequestJobSample(job.jobSample()));
+        }
 
         return model;
     }
@@ -59,12 +62,44 @@ public class ModelHelper {
                 .tags(tags != null ? buildModelTags(tags) : null)
                 .timeout(job.timeout())
                 .build();
-        if (job.type().equals(Type.RECIPE.toString()))
+        if (job.typeAsString().equals(Type.RECIPE.toString()))
             model.setOutputs(buildModelOutputs(job.outputs()));
-        else if (job.type().equals(Type.PROFILE.toString()))
+        else if (job.typeAsString().equals(Type.PROFILE.toString())) {
             model.setOutputLocation(buildModelOutputLocation(job.outputs()));
+            model.setJobSample(buildRequestJobSample(job.jobSample()));
+        }
 
         return model;
+    }
+
+    public static JobSample buildRequestJobSample(final software.amazon.awssdk.services.databrew.model.JobSample jobSample) {
+        if (jobSample == null) {
+            return null;
+        } else if (jobSample.mode().equals(SampleMode.FULL_DATASET)) {
+            return JobSample.builder()
+                    .mode(jobSample.modeAsString())
+                    .build();
+        } else {
+            return JobSample.builder()
+                    .mode(jobSample.modeAsString())
+                    .size(jobSample.size())
+                    .build();
+        }
+    }
+
+    public static software.amazon.awssdk.services.databrew.model.JobSample buildModelJobSample(final JobSample jobSample) {
+        if (jobSample == null) {
+            return null;
+        } else if (jobSample.getMode().equals(SampleMode.FULL_DATASET)) {
+            return software.amazon.awssdk.services.databrew.model.JobSample.builder()
+                    .mode(jobSample.getMode())
+                    .build();
+        } else {
+            return software.amazon.awssdk.services.databrew.model.JobSample.builder()
+                    .mode(jobSample.getMode())
+                    .size(jobSample.getSize())
+                    .build();
+        }
     }
 
     public static S3Location buildRequestS3Location(final software.amazon.databrew.job.S3Location modelS3Location) {
