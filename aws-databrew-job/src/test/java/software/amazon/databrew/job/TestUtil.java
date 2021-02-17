@@ -1,7 +1,9 @@
 package software.amazon.databrew.job;
 
 import com.google.common.collect.ImmutableList;
+import software.amazon.awssdk.services.databrew.model.CsvOutputOptions;
 import software.amazon.awssdk.services.databrew.model.Job;
+import software.amazon.awssdk.services.databrew.model.OutputFormatOptions;
 import software.amazon.awssdk.services.databrew.model.S3Location;
 import software.amazon.awssdk.services.databrew.model.Output;
 
@@ -20,11 +22,29 @@ public class TestUtil {
     public static final String S3_BUCKET = "s3://test-dataset-input-bucket";
     public static final Integer TIMEOUT = 2880;
     public static final Integer UPDATED_TIMEOUT = 2880;
+    public static final String PIPE_CSV_DELIMITER = "|";
+    public static final String INVALID_CSV_DELIMITER = "*";
     public static final S3Location S3_LOCATION = S3Location.builder()
             .bucket(S3_BUCKET)
             .build();
     public static final List<Output> OUTPUTS = ImmutableList.of(Output.builder()
             .location(S3_LOCATION).build());
+    public static final List<Output> CSV_OUTPUT_VALID_DELIMITER= ImmutableList.of(Output.builder()
+            .location(S3_LOCATION)
+            .formatOptions(OutputFormatOptions.builder()
+                    .csv(CsvOutputOptions.builder()
+                            .delimiter(PIPE_CSV_DELIMITER)
+                            .build())
+                    .build())
+            .build());
+    public static final List<Output> CSV_OUTPUT_INVALID_DELIMITER= ImmutableList.of(Output.builder()
+            .location(S3_LOCATION)
+            .formatOptions(OutputFormatOptions.builder()
+                    .csv(CsvOutputOptions.builder()
+                            .delimiter(INVALID_CSV_DELIMITER)
+                            .build())
+                    .build())
+            .build());
     public static final Map<String, String> sampleTags() {
         Map<String, String> tagMap = new HashMap<>();
         tagMap.put("test1Key", "test1Value");

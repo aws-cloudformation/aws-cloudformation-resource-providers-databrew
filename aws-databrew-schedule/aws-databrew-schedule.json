@@ -34,7 +34,6 @@
     "JobName": {
       "description": "Job name",
       "type": "string",
-      "pattern": "[ -\ud7ff\ue000-\ufffd\ud800\udc00-\udbff\udfff\t]*",
       "minLength": 1,
       "maxLength": 255
     },

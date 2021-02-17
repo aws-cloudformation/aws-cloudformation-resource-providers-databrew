@@ -15,6 +15,11 @@ public class TestUtil {
     public static final String S3_BUCKET = "s3://test-dataset-input-bucket";
     public static final String S3_KEY = "input.json";
     public static final String UPDATED_S3_KEY = "input.xlsx";
+    public static final String CSV_S3_KEY = "input.csv";
+    public static final String TSV_S3_KEY = "input.tsv";
+    public static final String PIPE_CSV_DELIMITER = "|";
+    public static final String TAB_CSV_DELIMITER = "\t";
+    public static final String INVALID_CSV_DELIMITER = "*";
     public static final S3Location s3InputDefinition = S3Location.builder()
             .bucket(S3_BUCKET)
             .key(S3_KEY)
@@ -28,6 +33,20 @@ public class TestUtil {
             .build();
     public static final Input UPDATED_S3_INPUT = Input.builder()
             .s3InputDefinition(updatedS3InputDefinition)
+            .build();
+    public static final S3Location csvS3InputDefinition = S3Location.builder()
+            .bucket(S3_BUCKET)
+            .key(CSV_S3_KEY)
+            .build();
+    public static final Input CSV_S3_INPUT = Input.builder()
+            .s3InputDefinition(csvS3InputDefinition)
+            .build();
+    public static final S3Location tsvS3InputDefinition = S3Location.builder()
+            .bucket(S3_BUCKET)
+            .key(TSV_S3_KEY)
+            .build();
+    public static final Input TSV_S3_INPUT = Input.builder()
+            .s3InputDefinition(tsvS3InputDefinition)
             .build();
     public static final JsonOptions JSON_OPTIONS = JsonOptions.builder()
             .multiLine(true)
@@ -46,6 +65,24 @@ public class TestUtil {
             .build();
     public static final FormatOptions EXCEL_FORMAT_OPTIONS_NAMES = FormatOptions.builder()
             .excel(EXCEL_OPTIONS_NAMES)
+            .build();
+    public static final CsvOptions CSV_OPTIONS = CsvOptions.builder()
+            .delimiter(PIPE_CSV_DELIMITER)
+            .build();
+    public static final FormatOptions CSV_FORMAT_OPTIONS = FormatOptions.builder()
+            .csv(CSV_OPTIONS)
+            .build();
+    public static final CsvOptions INVALID_CSV_OPTIONS = CsvOptions.builder()
+            .delimiter(INVALID_CSV_DELIMITER)
+            .build();
+    public static final FormatOptions INVALID_CSV_FORMAT_OPTIONS = FormatOptions.builder()
+            .csv(INVALID_CSV_OPTIONS)
+            .build();
+    public static final CsvOptions TSV_OPTIONS = CsvOptions.builder()
+            .delimiter(TAB_CSV_DELIMITER)
+            .build();
+    public static final FormatOptions TSV_FORMAT_OPTIONS = FormatOptions.builder()
+            .csv(TSV_OPTIONS)
             .build();
     public static final Map<String, String> sampleTags() {
         Map<String, String> tagMap = new HashMap<>();

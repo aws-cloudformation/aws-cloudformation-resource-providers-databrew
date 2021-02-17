@@ -18,20 +18,11 @@
         },
         "Excel": {
           "$ref": "#/definitions/ExcelOptions"
+        },
+        "Csv": {
+          "$ref": "#/definitions/CsvOptions"
         }
       },
-      "oneOf": [
-        {
-          "required": [
-            "Json"
-          ]
-        },
-        {
-          "required": [
-            "Excel"
-          ]
-        }
-      ],
       "additionalProperties": false
     },
     "Input": {
@@ -110,6 +101,18 @@
           ]
         }
       ],
+      "additionalProperties": false
+    },
+    "CsvOptions": {
+      "description": "Csv options",
+      "type": "object",
+      "properties": {
+        "Delimiter": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1
+        }
+      },
       "additionalProperties": false
     },
     "S3Location": {
