@@ -19,6 +19,7 @@ public class ModelHelper {
         Map<String, String> tags = dataset.tags();
         return ResourceModel.builder()
                 .name(dataset.name())
+                .format(dataset.format() != null ? dataset.format().toString() : null)
                 .input(buildModelInput(dataset.input()))
                 .formatOptions(buildModelFormatOptions(dataset.formatOptions()))
                 .tags(tags != null ? buildModelTags(tags) : null)
@@ -29,6 +30,7 @@ public class ModelHelper {
         Map<String, String> tags = dataset.tags();
         return ResourceModel.builder()
                 .name(dataset.name())
+                .format(dataset.format() != null ? dataset.format().toString() : null)
                 .input(buildModelInput(dataset.input()))
                 .formatOptions(buildModelFormatOptions(dataset.formatOptions()))
                 .tags(tags != null ? buildModelTags(tags) : null)
@@ -92,12 +94,14 @@ public class ModelHelper {
             if (modelExcelOptions.getSheetIndexes() != null) {
                 software.amazon.awssdk.services.databrew.model.ExcelOptions requestExcelOptions = software.amazon.awssdk.services.databrew.model.ExcelOptions.builder()
                         .sheetIndexes(modelExcelOptions.getSheetIndexes())
+                        .headerRow(modelExcelOptions.getHeaderRow())
                         .build();
                 requestFormatOptionsBuilder
                         .excel(requestExcelOptions);
             } else if (modelExcelOptions.getSheetNames() != null) {
                 ExcelOptions requestExcelOptions = ExcelOptions.builder()
                         .sheetNames(modelExcelOptions.getSheetNames())
+                        .headerRow(modelExcelOptions.getHeaderRow())
                         .build();
                 requestFormatOptionsBuilder
                         .excel(requestExcelOptions);
@@ -113,6 +117,7 @@ public class ModelHelper {
         if (modelCsvOptions != null) {
             CsvOptions requestCsvOptions = CsvOptions.builder()
                     .delimiter(modelCsvOptions.getDelimiter())
+                    .headerRow(modelCsvOptions.getHeaderRow())
                     .build();
             requestFormatOptionsBuilder
                     .csv(requestCsvOptions);
@@ -148,20 +153,23 @@ public class ModelHelper {
                 modelFormatOptionsBuilder
                         .excel(modelExcelOptions.builder()
                                 .sheetIndexes(requestFormatOptions.excel().sheetIndexes())
+                                .headerRow(requestFormatOptions.excel().headerRow())
                                 .build());
             }
             else {
                 modelFormatOptionsBuilder.
                         excel(modelExcelOptions.builder()
                                 .sheetNames(requestFormatOptions.excel().sheetNames())
+                                .headerRow(requestFormatOptions.excel().headerRow())
                                 .build());
                 }
         }
         if (requestFormatOptions.csv() != null) {
             modelFormatOptionsBuilder
                     .csv(modelCsvOptions.builder()
-                                .delimiter(requestFormatOptions.csv().delimiter())
-                                .build());
+                            .delimiter(requestFormatOptions.csv().delimiter())
+                            .headerRow(requestFormatOptions.csv().headerRow())
+                            .build());
         }
         return modelFormatOptionsBuilder.build();
     }

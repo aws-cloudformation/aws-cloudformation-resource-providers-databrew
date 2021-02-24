@@ -31,6 +31,7 @@ public class CreateHandler extends BaseHandler<CallbackContext> {
         final DataBrewClient databrewClient = ClientBuilder.getClient();
         final CreateDatasetRequest createDatasetRequest = CreateDatasetRequest.builder()
                 .name(datasetName)
+                .format(model.getFormat())
                 .formatOptions(ModelHelper.buildRequestFormatOptions(model.getFormatOptions()))
                 .input(ModelHelper.buildRequestInput(model.getInput()))
                 .tags(ModelHelper.buildTagInputMap(model.getTags()))

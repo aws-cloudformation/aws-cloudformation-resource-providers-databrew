@@ -9,6 +9,16 @@
       "minLength": 1,
       "maxLength": 255
     },
+    "Format": {
+      "description": "Dataset format",
+      "enum": [
+        "CSV",
+        "JSON",
+        "PARQUET",
+        "EXCEL"
+      ],
+      "type": "string"
+    },
     "FormatOptions": {
       "description": "Format options for dataset",
       "type": "object",
@@ -23,6 +33,23 @@
           "$ref": "#/definitions/CsvOptions"
         }
       },
+      "oneOf": [
+        {
+          "required": [
+            "Json"
+          ]
+        },
+        {
+          "required": [
+            "Excel"
+          ]
+        },
+        {
+          "required": [
+            "Csv"
+          ]
+        }
+      ],
       "additionalProperties": false
     },
     "Input": {
@@ -87,6 +114,9 @@
           },
           "minItems": 1,
           "maxItems": 1
+        },
+        "HeaderRow": {
+          "type": "boolean"
         }
       },
       "oneOf": [
@@ -111,6 +141,9 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 1
+        },
+        "HeaderRow": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false
