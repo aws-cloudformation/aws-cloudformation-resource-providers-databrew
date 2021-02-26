@@ -112,6 +112,18 @@
     "Timeout": {
       "description": "Timeout",
       "type": "integer"
+    },
+    "JobSample": {
+      "description": "Job Sample",
+      "type": "object",
+      "properties": {
+        "Mode": {
+          "$ref": "#/definitions/SampleMode"
+        },
+        "Size": {
+          "$ref": "#/definitions/JobSize"
+        }
+      }
     }
   },
   "definitions": {
@@ -224,6 +236,19 @@
         "Value",
         "Key"
       ]
+    },
+    "SampleMode": {
+      "description": "Sample configuration mode for profile jobs.",
+      "enum": [
+        "FULL_DATASET",
+        "CUSTOM_ROWS"
+      ],
+      "type": "string"
+    },
+    "JobSize": {
+      "description": "Sample configuration size for profile jobs.",
+      "format": "int64",
+      "type": "integer"
     }
   },
   "additionalProperties": false,

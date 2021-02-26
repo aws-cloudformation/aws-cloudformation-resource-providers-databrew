@@ -28,8 +28,10 @@ public class UpdateHandler extends BaseHandler<CallbackContext> {
 
         final String jobName = model.getName();
         final String jobType = model.getType();
+        final JobSample jobSample = model.getJobSample();
 
-        if ((!jobType.equals(ModelHelper.Type.PROFILE.toString())) && (!jobType.equals(ModelHelper.Type.RECIPE.toString()))) {
+        if (((!jobType.equals(ModelHelper.Type.PROFILE.toString())) && (!jobType.equals(ModelHelper.Type.RECIPE.toString()))) ||
+            jobType.equals(ModelHelper.Type.RECIPE.toString()) && jobSample != null) {
             return ProgressEvent.<ResourceModel, CallbackContext>builder()
                     .errorCode(HandlerErrorCode.InvalidRequest)
                     .status(OperationStatus.FAILED)
@@ -78,6 +80,7 @@ public class UpdateHandler extends BaseHandler<CallbackContext> {
                     .outputLocation(ModelHelper.buildRequestS3Location(model.getOutputLocation()))
                     .roleArn(model.getRoleArn())
                     .timeout(model.getTimeout())
+                    .jobSample(ModelHelper.buildModelJobSample(model.getJobSample()))
                     .build();
 
             try {

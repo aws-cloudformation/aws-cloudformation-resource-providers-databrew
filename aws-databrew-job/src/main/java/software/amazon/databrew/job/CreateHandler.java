@@ -30,13 +30,16 @@ public class CreateHandler extends BaseHandler<CallbackContext> {
 
         final String jobName = model.getName();
         final String jobType = model.getType();
+        final JobSample jobSample = model.getJobSample();
 
-        if ((!jobType.equals(ModelHelper.Type.PROFILE.toString())) && (!jobType.equals(ModelHelper.Type.RECIPE.toString()))) {
+        if (((!jobType.equals(ModelHelper.Type.PROFILE.toString())) && (!jobType.equals(ModelHelper.Type.RECIPE.toString()))) ||
+            jobType.equals(ModelHelper.Type.RECIPE.toString()) && jobSample != null) {
             return ProgressEvent.<ResourceModel, CallbackContext>builder()
                     .errorCode(HandlerErrorCode.InvalidRequest)
                     .status(OperationStatus.FAILED)
                     .build();
         }
+
 
         if (jobType.equals(ModelHelper.Type.RECIPE.toString())) {
             final CreateRecipeJobRequest createRecipeJobRequest = CreateRecipeJobRequest.builder()
@@ -86,6 +89,7 @@ public class CreateHandler extends BaseHandler<CallbackContext> {
                     .roleArn(model.getRoleArn())
                     .tags(ModelHelper.buildTagInputMap(model.getTags()))
                     .timeout(model.getTimeout())
+                    .jobSample(ModelHelper.buildModelJobSample(model.getJobSample()))
                     .build();
 
             try {

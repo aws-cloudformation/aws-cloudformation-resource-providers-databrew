@@ -4,7 +4,9 @@ import com.google.common.collect.ImmutableList;
 import software.amazon.awssdk.services.databrew.model.CsvOutputOptions;
 import software.amazon.awssdk.services.databrew.model.Job;
 import software.amazon.awssdk.services.databrew.model.OutputFormatOptions;
+import software.amazon.awssdk.services.databrew.model.SampleMode;
 import software.amazon.awssdk.services.databrew.model.S3Location;
+import software.amazon.awssdk.services.databrew.model.JobSample;
 import software.amazon.awssdk.services.databrew.model.Output;
 
 import java.util.HashMap;
@@ -24,6 +26,7 @@ public class TestUtil {
     public static final Integer UPDATED_TIMEOUT = 2880;
     public static final String PIPE_CSV_DELIMITER = "|";
     public static final String INVALID_CSV_DELIMITER = "*";
+
     public static final S3Location S3_LOCATION = S3Location.builder()
             .bucket(S3_BUCKET)
             .build();
@@ -50,6 +53,47 @@ public class TestUtil {
         tagMap.put("test1Key", "test1Value");
         tagMap.put("test2Key", "test12Value");
         return tagMap;
+    }
+    public static JobSample fullDatasetModeJobSample() {
+        return JobSample.builder()
+                .mode(SampleMode.FULL_DATASET.toString())
+                .build();
+    }
+    public static JobSample customRowsModeJobSample() {
+        return JobSample.builder()
+                .mode(SampleMode.CUSTOM_ROWS.toString())
+                .size(Long.valueOf(500))
+                .build();
+    }
+    public static JobSample defaultCustomRowsModeJobSample() {
+        return JobSample.builder()
+                .mode(SampleMode.CUSTOM_ROWS.toString())
+                .size(Long.valueOf(20000))
+                .build();
+    }
+    public static JobSample invalidJobSample1() {
+        return JobSample.builder()
+                .mode(SampleMode.CUSTOM_ROWS.toString())
+                .size(Long.valueOf(Long.MAX_VALUE + 1))
+                .build();
+    }
+    public static JobSample invalidJobSample2() {
+        return JobSample.builder()
+                .mode("")
+                .size(Long.valueOf(Long.MAX_VALUE))
+                .build();
+    }
+    public static JobSample invalidJobSample3() {
+        return JobSample.builder()
+                .mode(SampleMode.CUSTOM_ROWS.toString())
+                .size(Long.valueOf(-500))
+                .build();
+    }
+    public static JobSample invalidJobSample4() {
+        return JobSample.builder()
+                .mode(SampleMode.FULL_DATASET.toString())
+                .size(Long.valueOf(500))
+                .build();
     }
     public static void assertThatJobModelsAreEqual(final Object rawModel,
                                                 final Job sdkModel) {

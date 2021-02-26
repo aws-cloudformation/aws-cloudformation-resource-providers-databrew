@@ -46,12 +46,14 @@ public class ReadHandlerTest {
                 .type(TestUtil.JOB_TYPE_PROFILE)
                 .name(TestUtil.JOB_NAME)
                 .outputs(TestUtil.OUTPUTS)
+                .jobSample(TestUtil.customRowsModeJobSample())
                 .timeout(TestUtil.TIMEOUT)
                 .build();
 
         final DescribeJobResponse describeJobResponse = DescribeJobResponse.builder()
                 .type(job.type())
                 .name(job.name())
+                .jobSample(job.jobSample())
                 .outputs(TestUtil.OUTPUTS)
                 .timeout(job.timeout())
                 .build();

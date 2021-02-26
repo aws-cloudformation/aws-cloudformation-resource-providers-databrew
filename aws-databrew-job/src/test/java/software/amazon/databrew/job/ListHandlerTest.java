@@ -50,15 +50,24 @@ public class ListHandlerTest {
         Job job1 = Job.builder()
                 .type(TestUtil.JOB_TYPE_PROFILE)
                 .name("job1")
+                .jobSample(TestUtil.fullDatasetModeJobSample())
                 .outputs(TestUtil.OUTPUTS)
                 .build();
         Job job2 = Job.builder()
+                .type(TestUtil.JOB_TYPE_PROFILE)
+                .name("job2")
+                .jobSample(TestUtil.customRowsModeJobSample())
+                .outputs(TestUtil.OUTPUTS)
+                .build();
+        // When job sample is empty then it defaults to Mode : CUSTOM_ROWS and Size : 20000
+        Job job3 = Job.builder()
                 .type(TestUtil.JOB_TYPE_PROFILE)
                 .name("job2")
                 .outputs(TestUtil.OUTPUTS)
                 .build();
         jobs.add(job1);
         jobs.add(job2);
+        jobs.add(job3);
 
         final ListJobsResponse listJobsResponse = ListJobsResponse.builder()
                 .jobs(jobs)
@@ -82,11 +91,12 @@ public class ListHandlerTest {
         assertThat(response.getCallbackContext()).isNull();
         assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
         assertThat(response.getResourceModel()).isNull();
-        assertThat(response.getResourceModels().size()).isEqualTo(2);
+        assertThat(response.getResourceModels().size()).isEqualTo(3);
         assertThat(response.getMessage()).isNull();
         assertThat(response.getErrorCode()).isNull();
         assertThatJobModelsAreEqual(response.getResourceModels().get(0), job1);
         assertThatJobModelsAreEqual(response.getResourceModels().get(1), job2);
+        assertThatJobModelsAreEqual(response.getResourceModels().get(2), job2);
     }
 
     @Test
