@@ -17,9 +17,15 @@ public class TestUtil {
     public static final String UPDATED_S3_KEY = "input.xlsx";
     public static final String CSV_S3_KEY = "input.csv";
     public static final String TSV_S3_KEY = "input.tsv";
+    public static final String EXCEL_S3_KEY = "input.xlsx";
+    public static final String JSON_S3_KEY_EXTENSIONLESS = "input";
     public static final String PIPE_CSV_DELIMITER = "|";
     public static final String TAB_CSV_DELIMITER = "\t";
     public static final String INVALID_CSV_DELIMITER = "*";
+    public static final String CSV_FORMAT = "CSV";
+    public static final String EXCEL_FORMAT = "EXCEL";
+    public static final String JSON_FORMAT = "JSON";
+    public static final String PARQUET_FORMAT = "PARQUET";
     public static final S3Location s3InputDefinition = S3Location.builder()
             .bucket(S3_BUCKET)
             .key(S3_KEY)
@@ -47,6 +53,20 @@ public class TestUtil {
             .build();
     public static final Input TSV_S3_INPUT = Input.builder()
             .s3InputDefinition(tsvS3InputDefinition)
+            .build();
+    public static final S3Location excelS3InputDefinition = S3Location.builder()
+            .bucket(S3_BUCKET)
+            .key(EXCEL_S3_KEY)
+            .build();
+    public static final Input EXCEL_S3_INPUT = Input.builder()
+            .s3InputDefinition(excelS3InputDefinition)
+            .build();
+    public static final S3Location jsonS3InputDefinition = S3Location.builder()
+            .bucket(S3_BUCKET)
+            .key(JSON_S3_KEY_EXTENSIONLESS)
+            .build();
+    public static final Input JSON_S3_INPUT_EXTENSIONLESS = Input.builder()
+            .s3InputDefinition(jsonS3InputDefinition)
             .build();
     public static final JsonOptions JSON_OPTIONS = JsonOptions.builder()
             .multiLine(true)
@@ -83,6 +103,20 @@ public class TestUtil {
             .build();
     public static final FormatOptions TSV_FORMAT_OPTIONS = FormatOptions.builder()
             .csv(TSV_OPTIONS)
+            .build();
+    public static final CsvOptions CSV_OPTIONS_HEADERLESS = CsvOptions.builder()
+            .delimiter(PIPE_CSV_DELIMITER)
+            .headerRow(false)
+            .build();
+    public static final FormatOptions CSV_FORMAT_OPTIONS_HEADERLESS = FormatOptions.builder()
+            .csv(CSV_OPTIONS_HEADERLESS)
+            .build();
+    public static final ExcelOptions EXCEL_OPTIONS_HEADERLESS = ExcelOptions.builder()
+            .sheetNames(new ArrayList<String>(){{ add("test"); }})
+            .headerRow(false)
+            .build();
+    public static final FormatOptions EXCEL_FORMAT_OPTIONS_HEADERLESS = FormatOptions.builder()
+            .excel(EXCEL_OPTIONS_HEADERLESS)
             .build();
     public static final Map<String, String> sampleTags() {
         Map<String, String> tagMap = new HashMap<>();

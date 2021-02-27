@@ -268,4 +268,139 @@ public class CreateHandlerTest {
         assertThat(response.getErrorCode()).isNull();
     }
 
+    @Test
+    public void handleRequest_SuccessfulCreate_ValidFormatWithHeaderlessCsv() {
+        final CreateHandler handler = new CreateHandler();
+        final CreateDatasetResponse createDatasetResponse = CreateDatasetResponse.builder().build();
+        doReturn(createDatasetResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .format(TestUtil.CSV_FORMAT)
+                .input(TestUtil.CSV_S3_INPUT)
+                .formatOptions(TestUtil.CSV_FORMAT_OPTIONS_HEADERLESS)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+        assertThat(response.getResourceModel().getFormatOptions()).isNotNull();
+        assertThat(response.getResourceModel().getFormatOptions().getCsv()).isNotNull();
+        assertThat(response.getResourceModel().getFormatOptions().getCsv().getDelimiter()).isEqualTo(TestUtil.PIPE_CSV_DELIMITER);
+        assertThat(response.getResourceModel().getFormatOptions().getCsv().getHeaderRow()).isEqualTo(false);
+        assertThat(response.getResourceModel().getFormat()).isEqualTo(TestUtil.CSV_FORMAT);
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
+
+    @Test
+    public void handleRequest_SuccessfulCreate_ValidFormatWithHeaderlessExcel() {
+        final CreateHandler handler = new CreateHandler();
+        final CreateDatasetResponse createDatasetResponse = CreateDatasetResponse.builder().build();
+        doReturn(createDatasetResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .format(TestUtil.EXCEL_FORMAT)
+                .input(TestUtil.EXCEL_S3_INPUT)
+                .formatOptions(TestUtil.EXCEL_FORMAT_OPTIONS_HEADERLESS)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+        assertThat(response.getResourceModel().getFormatOptions()).isNotNull();
+        assertThat(response.getResourceModel().getFormatOptions().getExcel()).isNotNull();
+        assertThat(response.getResourceModel().getFormatOptions().getExcel().getHeaderRow()).isEqualTo(false);
+        assertThat(response.getResourceModel().getFormat()).isEqualTo(TestUtil.EXCEL_FORMAT);
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
+
+    @Test
+    public void handleRequest_SuccessfulCreate_ValidFormatWithExtensionlessJson() {
+        final CreateHandler handler = new CreateHandler();
+        final CreateDatasetResponse createDatasetResponse = CreateDatasetResponse.builder().build();
+        doReturn(createDatasetResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .format(TestUtil.JSON_FORMAT)
+                .input(TestUtil.JSON_S3_INPUT_EXTENSIONLESS)
+                .formatOptions(TestUtil.JSON_FORMAT_OPTIONS)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+        assertThat(response.getResourceModel().getFormatOptions()).isNotNull();
+        assertThat(response.getResourceModel().getFormatOptions().getJson()).isNotNull();
+        assertThat(response.getResourceModel().getFormat()).isEqualTo(TestUtil.JSON_FORMAT);
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
+
+    @Test
+    public void handleRequest_FailedCreate_MismatchedParquetFormatAndJsonFormatOptions() {
+        doThrow(ValidationException.class)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final CreateHandler handler = new CreateHandler();
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .format(TestUtil.PARQUET_FORMAT)
+                .input(TestUtil.JSON_S3_INPUT_EXTENSIONLESS)
+                .formatOptions(TestUtil.JSON_FORMAT_OPTIONS)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+        assertThat(response.getResourceModel()).isNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
+    }
 }

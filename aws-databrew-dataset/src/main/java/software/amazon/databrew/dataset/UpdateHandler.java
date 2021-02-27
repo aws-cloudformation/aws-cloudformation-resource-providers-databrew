@@ -27,6 +27,7 @@ public class UpdateHandler extends BaseHandler<CallbackContext> {
 
         final UpdateDatasetRequest updateDatasetRequest = UpdateDatasetRequest.builder()
                 .name(datasetName)
+                .format(model.getFormat())
                 .formatOptions(ModelHelper.buildRequestFormatOptions(model.getFormatOptions()))
                 .input(ModelHelper.buildRequestInput(model.getInput()))
                 .build();
