@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static software.amazon.databrew.job.TestUtil.DATA_CATALOG_OUTPUT_LIST;
 import static software.amazon.databrew.job.TestUtil.INVALID_JOB_NAME;
 import static software.amazon.databrew.job.TestUtil.JOB_NAME;
 import static software.amazon.databrew.job.TestUtil.JOB_TYPE_PROFILE;
@@ -553,6 +554,39 @@ public class CreateHandlerTest {
         assertThat(response.getResourceModel()).isNull();
         assertThat(response.getResourceModels()).isNull();
         assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
+    }
+
+    @Test
+    public void handleRequest_SuccessfulCreate_RecipeJob_ValidDataCatalogOutput() {
+        final CreateHandler handler = new CreateHandler();
+        final CreateRecipeJobResponse createRecipeJobResponse = CreateRecipeJobResponse.builder().build();
+        doReturn(createRecipeJobResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder()
+                .type(JOB_TYPE_RECIPE)
+                .name(JOB_NAME)
+                .dataCatalogOutputs(ModelHelper.buildModelDataCatalogOutputs(DATA_CATALOG_OUTPUT_LIST))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel().getDataCatalogOutputs().size()).isEqualTo(2);
+        assertThat(response.getResourceModel().getDataCatalogOutputs().get(0).getS3Options()).isNotNull();
+        assertThat(response.getResourceModel().getDataCatalogOutputs().get(1).getDatabaseOptions()).isNotNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
     }
 
 }

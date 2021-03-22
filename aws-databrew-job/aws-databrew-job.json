@@ -59,6 +59,12 @@
         "$ref": "#/definitions/Output"
       }
     },
+    "DataCatalogOutputs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/DataCatalogOutput"
+      }
+    },
     "OutputLocation": {
       "description": "Output location",
       "$ref": "#/definitions/OutputLocation"
@@ -198,6 +204,62 @@
       "required": [
         "Location"
       ]
+    },
+    "DataCatalogOutput": {
+      "type": "object",
+      "properties": {
+        "CatalogId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "DatabaseName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "TableName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "S3Options": {
+          "$ref": "#/definitions/S3TableOutputOptions"
+        },
+        "DatabaseOptions": {
+          "$ref": "#/definitions/DatabaseTableOutputOptions"
+        },
+        "Overwrite": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "required": ["DatabaseName", "TableName"]
+    },
+    "S3TableOutputOptions": {
+      "type": "object",
+      "properties": {
+        "Location": {
+          "$ref": "#/definitions/S3Location"
+        }
+      },
+      "additionalProperties": false,
+      "required": ["Location"]
+    },
+    "DatabaseTableOutputOptions": {
+      "type": "object",
+      "properties": {
+        "TempDirectory": {
+          "$ref": "#/definitions/S3Location"
+        },
+        "TableName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        }
+      },
+      "additionalProperties": false,
+      "required": ["TableName"]
     },
     "Recipe": {
       "type": "object",

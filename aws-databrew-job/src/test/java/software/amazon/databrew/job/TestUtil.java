@@ -8,6 +8,9 @@ import software.amazon.awssdk.services.databrew.model.SampleMode;
 import software.amazon.awssdk.services.databrew.model.S3Location;
 import software.amazon.awssdk.services.databrew.model.JobSample;
 import software.amazon.awssdk.services.databrew.model.Output;
+import software.amazon.awssdk.services.databrew.model.DataCatalogOutput;
+import software.amazon.awssdk.services.databrew.model.S3TableOutputOptions;
+import software.amazon.awssdk.services.databrew.model.DatabaseTableOutputOptions;
 
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +51,25 @@ public class TestUtil {
                             .build())
                     .build())
             .build());
+    public static final List<DataCatalogOutput> DATA_CATALOG_OUTPUT_LIST = ImmutableList.of(
+            DataCatalogOutput.builder()
+                    .databaseName("database-name")
+                    .tableName("table-name")
+                    .s3Options(S3TableOutputOptions.builder().location(S3_LOCATION).build())
+                    .build(),
+            DataCatalogOutput.builder()
+                    .databaseName("database-name")
+                    .tableName("table-name")
+                    .databaseOptions(DatabaseTableOutputOptions.builder().tempDirectory(S3_LOCATION).tableName("table-name").build())
+                    .build()
+            );
+    public static final List<DataCatalogOutput> INVALID_DATA_CATALOG_OUTPUT_LIST = ImmutableList.of(
+            DataCatalogOutput.builder()
+                    .databaseName("database-name")
+                    .tableName("table-name")
+                    .s3Options(S3TableOutputOptions.builder().build())
+                    .build()
+    );
     public static final Map<String, String> sampleTags() {
         Map<String, String> tagMap = new HashMap<>();
         tagMap.put("test1Key", "test1Value");

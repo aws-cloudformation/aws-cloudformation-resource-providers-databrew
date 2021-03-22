@@ -123,6 +123,9 @@
           "anyOf": [
             {
               "$ref": "#/definitions/RecipeParameters"
+            },
+            {
+              "$ref": "#/definitions/ParameterMap"
             }
           ]
         }
@@ -496,6 +499,15 @@
             }
           ],
           "additionalProperties": false
+        }
+      }
+    },
+    "ParameterMap": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[A-Za-z0-9]{1,128}$": {
+          "type": "string"
         }
       }
     },

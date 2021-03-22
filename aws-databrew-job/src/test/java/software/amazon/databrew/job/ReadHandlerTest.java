@@ -46,6 +46,7 @@ public class ReadHandlerTest {
                 .type(TestUtil.JOB_TYPE_PROFILE)
                 .name(TestUtil.JOB_NAME)
                 .outputs(TestUtil.OUTPUTS)
+                .dataCatalogOutputs(TestUtil.DATA_CATALOG_OUTPUT_LIST)
                 .jobSample(TestUtil.customRowsModeJobSample())
                 .timeout(TestUtil.TIMEOUT)
                 .build();
@@ -55,6 +56,7 @@ public class ReadHandlerTest {
                 .name(job.name())
                 .jobSample(job.jobSample())
                 .outputs(TestUtil.OUTPUTS)
+                .dataCatalogOutputs(TestUtil.DATA_CATALOG_OUTPUT_LIST)
                 .timeout(job.timeout())
                 .build();
 

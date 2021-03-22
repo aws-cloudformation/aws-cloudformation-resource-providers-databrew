@@ -4,6 +4,9 @@ import software.amazon.awssdk.services.databrew.model.DescribeJobResponse;
 import software.amazon.awssdk.services.databrew.model.Job;
 import software.amazon.awssdk.services.databrew.model.S3Location;
 import software.amazon.awssdk.services.databrew.model.Output;
+import software.amazon.awssdk.services.databrew.model.DataCatalogOutput;
+import software.amazon.awssdk.services.databrew.model.S3TableOutputOptions;
+import software.amazon.awssdk.services.databrew.model.DatabaseTableOutputOptions;
 import software.amazon.awssdk.services.databrew.model.RecipeReference;
 import software.amazon.awssdk.services.databrew.model.OutputFormatOptions;
 import software.amazon.awssdk.services.databrew.model.CsvOutputOptions;
@@ -36,9 +39,10 @@ public class ModelHelper {
                 .tags(tags != null ? buildModelTags(tags) : null)
                 .timeout(job.timeout())
                 .build();
-        if (job.typeAsString().equals(Type.RECIPE.toString()))
+        if (job.typeAsString().equals(Type.RECIPE.toString())) {
             model.setOutputs(buildModelOutputs(job.outputs()));
-        else if (job.typeAsString().equals(Type.PROFILE.toString())) {
+            model.setDataCatalogOutputs(buildModelDataCatalogOutputs(job.dataCatalogOutputs()));
+        } else if (job.typeAsString().equals(Type.PROFILE.toString())) {
             model.setOutputLocation(buildModelOutputLocation(job.outputs()));
             model.setJobSample(buildRequestJobSample(job.jobSample()));
         }
@@ -62,9 +66,10 @@ public class ModelHelper {
                 .tags(tags != null ? buildModelTags(tags) : null)
                 .timeout(job.timeout())
                 .build();
-        if (job.typeAsString().equals(Type.RECIPE.toString()))
+        if (job.typeAsString().equals(Type.RECIPE.toString())) {
             model.setOutputs(buildModelOutputs(job.outputs()));
-        else if (job.typeAsString().equals(Type.PROFILE.toString())) {
+            model.setDataCatalogOutputs(buildModelDataCatalogOutputs(job.dataCatalogOutputs()));
+        } else if (job.typeAsString().equals(Type.PROFILE.toString())) {
             model.setOutputLocation(buildModelOutputLocation(job.outputs()));
             model.setJobSample(buildRequestJobSample(job.jobSample()));
         }
@@ -188,6 +193,66 @@ public class ModelHelper {
             modelOutputs.add(modelOutput);
         });
         return modelOutputs;
+    }
+
+    public static List<DataCatalogOutput> buildRequestDataCatalogOutputs(final List<software.amazon.databrew.job.DataCatalogOutput> dataCatalogOutputs) {
+        List<DataCatalogOutput> requestDataCatalogOutputs = new ArrayList<>();
+        if (dataCatalogOutputs == null) return null;
+        dataCatalogOutputs.forEach(dataCatalogOutput -> {
+            DataCatalogOutput requestDataCatalogOutput = DataCatalogOutput.builder()
+                    .catalogId(dataCatalogOutput.getCatalogId())
+                    .databaseName(dataCatalogOutput.getDatabaseName())
+                    .tableName(dataCatalogOutput.getTableName())
+                    .s3Options(buildRequestS3TableOutputOptions(dataCatalogOutput.getS3Options()))
+                    .databaseOptions(buildRequestDatabaseTableOutputOptions(dataCatalogOutput.getDatabaseOptions()))
+                    .overwrite(dataCatalogOutput.getOverwrite())
+                    .build();
+            requestDataCatalogOutputs.add(requestDataCatalogOutput);
+        });
+        return requestDataCatalogOutputs;
+    }
+
+    public static List<software.amazon.databrew.job.DataCatalogOutput> buildModelDataCatalogOutputs(final List<DataCatalogOutput> dataCatalogOutputs) {
+        List<software.amazon.databrew.job.DataCatalogOutput> modelDataCatalogOutputs = new ArrayList<>();
+        if (dataCatalogOutputs == null) return null;
+        dataCatalogOutputs.forEach(dataCatalogOutput -> {
+            software.amazon.databrew.job.DataCatalogOutput modelDataCatalogOutput = new software.amazon.databrew.job.DataCatalogOutput().builder()
+                    .catalogId(dataCatalogOutput.catalogId())
+                    .databaseName(dataCatalogOutput.databaseName())
+                    .tableName(dataCatalogOutput.tableName())
+                    .s3Options(buildModelS3TableOutputOptions(dataCatalogOutput.s3Options()))
+                    .databaseOptions(buildModelDatabaseTableOutputOptions(dataCatalogOutput.databaseOptions()))
+                    .overwrite(dataCatalogOutput.overwrite())
+                    .build();
+            modelDataCatalogOutputs.add(modelDataCatalogOutput);
+        });
+        return modelDataCatalogOutputs;
+    }
+
+    public static S3TableOutputOptions buildRequestS3TableOutputOptions(final software.amazon.databrew.job.S3TableOutputOptions modelS3TableOutputOptions) {
+        return modelS3TableOutputOptions == null ? null : S3TableOutputOptions.builder()
+                .location(buildRequestS3Location(modelS3TableOutputOptions.getLocation()))
+                .build();
+    }
+
+    public static software.amazon.databrew.job.S3TableOutputOptions buildModelS3TableOutputOptions(final S3TableOutputOptions requestS3TableOutputOptions) {
+        return requestS3TableOutputOptions == null ? null : software.amazon.databrew.job.S3TableOutputOptions.builder()
+                .location(buildModelS3Location(requestS3TableOutputOptions.location()))
+                .build();
+    }
+
+    public static DatabaseTableOutputOptions buildRequestDatabaseTableOutputOptions(final software.amazon.databrew.job.DatabaseTableOutputOptions modelDatabaseTableOutputOptions) {
+        return modelDatabaseTableOutputOptions == null ? null : DatabaseTableOutputOptions.builder()
+                .tempDirectory(buildRequestS3Location(modelDatabaseTableOutputOptions.getTempDirectory()))
+                .tableName(modelDatabaseTableOutputOptions.getTableName())
+                .build();
+    }
+
+    public static software.amazon.databrew.job.DatabaseTableOutputOptions buildModelDatabaseTableOutputOptions(final DatabaseTableOutputOptions requestDatabaseTableOutputOptions) {
+        return requestDatabaseTableOutputOptions == null ? null : software.amazon.databrew.job.DatabaseTableOutputOptions.builder()
+                .tempDirectory(buildModelS3Location(requestDatabaseTableOutputOptions.tempDirectory()))
+                .tableName(requestDatabaseTableOutputOptions.tableName())
+                .build();
     }
 
     public static RecipeReference buildRequestRecipe(final Recipe modelRecipe) {
