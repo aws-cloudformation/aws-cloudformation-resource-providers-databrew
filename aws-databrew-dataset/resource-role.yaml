@@ -31,6 +31,8 @@ Resources:
                 - "databrew:TagResource"
                 - "databrew:UntagResource"
                 - "databrew:UpdateDataset"
+                - "glue:GetConnection"
+                - "glue:GetTable"
                 - "iam:ListRoles"
                 - "iam:PassRole"
                 Resource: "*"

@@ -1,5 +1,6 @@
 package software.amazon.databrew.dataset;
 
+import com.google.common.collect.Lists;
 import software.amazon.awssdk.services.databrew.model.Dataset;
 
 import java.util.ArrayList;
@@ -14,6 +15,9 @@ public class TestUtil {
     public static final String INVALID_DATASET_NAME = "invalid-dataset-test";
     public static final String S3_BUCKET = "s3://test-dataset-input-bucket";
     public static final String S3_KEY = "input.json";
+    public static final String S3_FOLDER_KEY = "abc/";
+    public static final String S3_REGEX_KEY = "abc/<\\w+>/def";
+    public static final String S3_PARAM_KEY = "abc/{str1}/def";
     public static final String UPDATED_S3_KEY = "input.xlsx";
     public static final String CSV_S3_KEY = "input.csv";
     public static final String TSV_S3_KEY = "input.tsv";
@@ -26,9 +30,26 @@ public class TestUtil {
     public static final String EXCEL_FORMAT = "EXCEL";
     public static final String JSON_FORMAT = "JSON";
     public static final String PARQUET_FORMAT = "PARQUET";
+    public static final String GLUE_CONNECTION_NAME = "test-connection-name";
+    public static final String DATABASE_TABLE_NAME = "test-table-name";
     public static final S3Location s3InputDefinition = S3Location.builder()
             .bucket(S3_BUCKET)
             .key(S3_KEY)
+            .build();
+    public static final DatabaseInputDefinition databaseInputDefinition = DatabaseInputDefinition.builder()
+            .glueConnectionName(GLUE_CONNECTION_NAME)
+            .databaseTableName(DATABASE_TABLE_NAME)
+            .tempDirectory(s3InputDefinition)
+            .build();
+    public static final Input DATABASE_INPUT = Input.builder()
+            .databaseInputDefinition(databaseInputDefinition)
+            .build();
+    public static final DatabaseInputDefinition updatedDatabaseInputDefinition = DatabaseInputDefinition.builder()
+            .glueConnectionName(GLUE_CONNECTION_NAME)
+            .databaseTableName(DATABASE_TABLE_NAME)
+            .build();
+    public static final Input UPDATED_DATABASE_INPUT = Input.builder()
+            .databaseInputDefinition(updatedDatabaseInputDefinition)
             .build();
     public static final Input S3_INPUT = Input.builder()
             .s3InputDefinition(s3InputDefinition)
@@ -40,6 +61,22 @@ public class TestUtil {
     public static final Input UPDATED_S3_INPUT = Input.builder()
             .s3InputDefinition(updatedS3InputDefinition)
             .build();
+
+    public static final Input S3_FOLDER_INPUT = Input.builder().s3InputDefinition(S3Location.builder()
+            .bucket(S3_BUCKET)
+            .key(S3_FOLDER_KEY)
+            .build()).build();
+
+    public static final Input S3_REGEX_INPUT = Input.builder().s3InputDefinition(S3Location.builder()
+            .bucket(S3_BUCKET)
+            .key(S3_REGEX_KEY)
+            .build()).build();
+
+    public static final Input S3_PARAM_INPUT = Input.builder().s3InputDefinition(S3Location.builder()
+            .bucket(S3_BUCKET)
+            .key(S3_PARAM_KEY)
+            .build()).build();
+
     public static final S3Location csvS3InputDefinition = S3Location.builder()
             .bucket(S3_BUCKET)
             .key(CSV_S3_KEY)
@@ -75,13 +112,17 @@ public class TestUtil {
             .json(JSON_OPTIONS)
             .build();
     public static final ExcelOptions EXCEL_OPTIONS_INDEXES = ExcelOptions.builder()
-            .sheetIndexes(new ArrayList<Integer>(){{ add(1); }})
+            .sheetIndexes(new ArrayList<Integer>() {{
+                add(1);
+            }})
             .build();
     public static final FormatOptions EXCEL_FORMAT_OPTIONS_INDEXES = FormatOptions.builder()
             .excel(EXCEL_OPTIONS_INDEXES)
             .build();
     public static final ExcelOptions EXCEL_OPTIONS_NAMES = ExcelOptions.builder()
-            .sheetNames(new ArrayList<String>(){{ add("test"); }})
+            .sheetNames(new ArrayList<String>() {{
+                add("test");
+            }})
             .build();
     public static final FormatOptions EXCEL_FORMAT_OPTIONS_NAMES = FormatOptions.builder()
             .excel(EXCEL_OPTIONS_NAMES)
@@ -112,22 +153,74 @@ public class TestUtil {
             .csv(CSV_OPTIONS_HEADERLESS)
             .build();
     public static final ExcelOptions EXCEL_OPTIONS_HEADERLESS = ExcelOptions.builder()
-            .sheetNames(new ArrayList<String>(){{ add("test"); }})
+            .sheetNames(new ArrayList<String>() {{
+                add("test");
+            }})
             .headerRow(false)
             .build();
     public static final FormatOptions EXCEL_FORMAT_OPTIONS_HEADERLESS = FormatOptions.builder()
             .excel(EXCEL_OPTIONS_HEADERLESS)
             .build();
+
+    public static final PathOptions PATH_OPTIONS_WITH_VALID_FILES_LIMIT = PathOptions.builder()
+            .filesLimit(FilesLimit.builder().maxFiles(3).build()).build();
+
+    public static final PathOptions PATH_OPTIONS_WITH_INVALID_FILES_LIMIT = PathOptions.builder()
+            .filesLimit(FilesLimit.builder().maxFiles(-3).build()).build();
+
+    public static final PathOptions PATH_OPTIONS_WITH_VALID_LAST_MODIFIED = PathOptions.builder()
+            .lastModifiedDateCondition(getFilterExpression("relative_after", ":date1", "-2w")
+            ).build();
+
+    public static final PathOptions PATH_OPTIONS_WITH_INVALID_LAST_MODIFIED = PathOptions.builder()
+            .lastModifiedDateCondition(getFilterExpression("relative_after", ":date1", "two weeks")
+            ).build();
+
+    private static FilterExpression getFilterExpression(String condtion, String valueRef, String value) {
+        return FilterExpression.builder()
+                .expression(String.format("%s %s", condtion, valueRef))
+                .valuesMap(Lists.newArrayList(FilterValue.builder()
+                        .valueReference(valueRef)
+                        .value(value)
+                        .build())
+                ).build();
+    }
+
+    public static final PathOptions PATH_OPTIONS_WITH_VALID_PARAM = PathOptions.builder()
+            .parameters(Lists.newArrayList(PathParameter.builder()
+                    .pathParameterName("str1")
+                    .datasetParameter(DatasetParameter.builder()
+                            .name("str1")
+                            .type("String")
+                            .createColumn(true)
+                            .filter(getFilterExpression("contains", ":val1", "abc"))
+                            .build())
+                    .build())
+            ).build();
+
+    public static final PathOptions PATH_OPTIONS_WITH_INVALID_PARAM = PathOptions.builder()
+            .parameters(Lists.newArrayList(PathParameter.builder()
+                    .pathParameterName("str1")
+                    .datasetParameter(DatasetParameter.builder()
+                            .name("str1")
+                            .type("String")
+                            .createColumn(true)
+                            .filter(getFilterExpression("after", ":val1", "abc"))
+                            .build())
+                    .build())
+            ).build();
+
     public static final Map<String, String> sampleTags() {
         Map<String, String> tagMap = new HashMap<>();
         tagMap.put("test1Key", "test1Value");
         tagMap.put("test2Key", "test12Value");
         return tagMap;
     }
+
     public static void assertThatDatasetModelsAreEqual(final Object rawModel,
-                                                final Dataset sdkModel) {
+                                                       final Dataset sdkModel) {
         assertThat(rawModel).isInstanceOf(ResourceModel.class);
-        ResourceModel model = (ResourceModel)rawModel;
+        ResourceModel model = (ResourceModel) rawModel;
         assertThat(model.getName()).isEqualTo(sdkModel.name());
     }
 }
