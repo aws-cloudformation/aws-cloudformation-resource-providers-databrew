@@ -234,7 +234,10 @@
         }
       },
       "additionalProperties": false,
-      "required": ["DatabaseName", "TableName"]
+      "required": [
+        "DatabaseName",
+        "TableName"
+      ]
     },
     "S3TableOutputOptions": {
       "type": "object",
@@ -244,7 +247,9 @@
         }
       },
       "additionalProperties": false,
-      "required": ["Location"]
+      "required": [
+        "Location"
+      ]
     },
     "DatabaseTableOutputOptions": {
       "type": "object",
@@ -259,7 +264,9 @@
         }
       },
       "additionalProperties": false,
-      "required": ["TableName"]
+      "required": [
+        "TableName"
+      ]
     },
     "Recipe": {
       "type": "object",
