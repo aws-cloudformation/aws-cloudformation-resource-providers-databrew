@@ -63,10 +63,9 @@ public class ModelHelper {
                 if (tempMap != null) {
                     tempMap.forEach((key, value) -> parametersMap.put(Character.toUpperCase(key.charAt(0)) + key.substring(1), value));
                 }
-                RecipeParameters recipeParameters = mapper.convertValue(parametersMap, RecipeParameters.class);
                 Action modelStepAction = Action.builder()
                         .operation(recipeStep.action().operation())
-                        .parameters(recipeParameters)
+                        .parameters(parametersMap)
                         .build();
 
                 List<software.amazon.databrew.recipe.ConditionExpression> modelConditions = new ArrayList<>();
@@ -97,7 +96,7 @@ public class ModelHelper {
         if (modelRecipeSteps != null) {
             modelRecipeSteps.forEach(step -> {
                 Action modelRecipeAction = step.getAction();
-                RecipeParameters parameters = modelRecipeAction.getParameters();
+                Object parameters = modelRecipeAction.getParameters();
                 ObjectMapper m = new ObjectMapper();
                 Map<String, String> tempMap = m.convertValue(parameters, new TypeReference<Map<String, String>>() {
                 });

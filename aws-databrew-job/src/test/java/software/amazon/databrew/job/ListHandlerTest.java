@@ -132,6 +132,7 @@ public class ListHandlerTest {
                 .type(TestUtil.JOB_TYPE_RECIPE)
                 .name(TestUtil.JOB_NAME)
                 .outputs(TestUtil.CSV_OUTPUT_VALID_DELIMITER)
+                .dataCatalogOutputs(TestUtil.DATA_CATALOG_OUTPUT_LIST)
                 .build();
         jobs.add(job);
 
