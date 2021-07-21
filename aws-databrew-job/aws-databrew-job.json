@@ -97,6 +97,10 @@
     "JobSample": {
       "description": "Job Sample",
       "$ref": "#/definitions/JobSample"
+    },
+    "ProfileConfiguration": {
+      "description": "Profile Job configuration",
+      "$ref": "#/definitions/ProfileConfiguration"
     }
   },
   "definitions": {
@@ -331,6 +335,115 @@
         }
       },
       "additionalProperties": false
+    },
+    "ProfileConfiguration": {
+      "type": "object",
+      "properties": {
+        "DatasetStatisticsConfiguration": {
+          "$ref": "#/definitions/StatisticsConfiguration"
+        },
+        "ProfileColumns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ColumnSelector"
+          },
+          "minItems": 1
+        },
+        "ColumnStatisticsConfigurations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ColumnStatisticsConfiguration"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "ColumnStatisticsConfiguration": {
+      "type": "object",
+      "properties": {
+        "Selectors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ColumnSelector"
+          },
+          "minItems": 1
+        },
+        "Statistics": {
+          "$ref": "#/definitions/StatisticsConfiguration"
+        }
+      },
+      "required": [
+        "Statistics"
+      ],
+      "additionalProperties": false
+    },
+    "StatisticsConfiguration": {
+      "type": "object",
+      "properties": {
+        "IncludedStatistics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Statistic"
+          },
+          "minItems": 1
+        },
+        "Overrides": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StatisticOverride"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "ColumnSelector": {
+      "type": "object",
+      "properties": {
+        "Regex": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "Name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        }
+      },
+      "additionalProperties": false
+    },
+    "Statistic": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Z\\_]+$"
+    },
+    "StatisticOverride": {
+      "type": "object",
+      "properties": {
+        "Statistic": {
+          "$ref": "#/definitions/Statistic"
+        },
+        "Parameters": {
+          "$ref": "#/definitions/ParameterMap"
+        }
+      },
+      "required": [
+        "Statistic",
+        "Parameters"
+      ],
+      "additionalProperties": false
+    },
+    "ParameterMap": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[A-Za-z0-9]{1,128}$": {
+          "type": "string"
+        }
+      }
     }
   },
   "additionalProperties": false,

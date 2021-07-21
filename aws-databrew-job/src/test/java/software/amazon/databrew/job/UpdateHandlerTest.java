@@ -11,12 +11,16 @@ import software.amazon.awssdk.services.databrew.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.databrew.model.UpdateProfileJobResponse;
 import software.amazon.awssdk.services.databrew.model.UpdateRecipeJobResponse;
 import software.amazon.awssdk.services.databrew.model.ValidationException;
+import software.amazon.awssdk.services.databrew.model.ProfileConfiguration;
+import software.amazon.awssdk.services.databrew.model.StatisticsConfiguration;
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy;
 import software.amazon.cloudformation.proxy.HandlerErrorCode;
 import software.amazon.cloudformation.proxy.Logger;
 import software.amazon.cloudformation.proxy.OperationStatus;
 import software.amazon.cloudformation.proxy.ProgressEvent;
 import software.amazon.cloudformation.proxy.ResourceHandlerRequest;
+
+import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -25,6 +29,14 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static software.amazon.databrew.job.TestUtil.JOB_TYPE_RECIPE;
+import static software.amazon.databrew.job.TestUtil.JOB_NAME;
+import static software.amazon.databrew.job.TestUtil.JOB_TYPE_PROFILE;
+import static software.amazon.databrew.job.TestUtil.PROFILE_COLUMNS;
+import static software.amazon.databrew.job.TestUtil.DATASET_STATISTICS_CONFIGURATION;
+import static software.amazon.databrew.job.TestUtil.COLUMN_STATISTICS_CONFIGURATIONS;
+
+
+
 
 @ExtendWith(MockitoExtension.class)
 public class UpdateHandlerTest {
@@ -530,6 +542,77 @@ public class UpdateHandlerTest {
         assertThat(response.getResourceModels()).isNull();
         assertThat(response.getMessage()).isNull();
         assertThat(response.getErrorCode()).isNull();
+    }
+
+    @Test
+    public void handleRequest_SuccessfulUpdate_ProfileJob_ValidConfiguration() {
+        final UpdateHandler handler = new UpdateHandler();
+        final UpdateProfileJobResponse updateProfileJobResponse = UpdateProfileJobResponse.builder().build();
+        doReturn(updateProfileJobResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        ProfileConfiguration configuration = ProfileConfiguration.builder()
+                .datasetStatisticsConfiguration(DATASET_STATISTICS_CONFIGURATION)
+                .profileColumns(PROFILE_COLUMNS)
+                .columnStatisticsConfigurations(COLUMN_STATISTICS_CONFIGURATIONS)
+                .build();
+
+        final ResourceModel model = ResourceModel.builder()
+                .type(JOB_TYPE_PROFILE)
+                .name(JOB_NAME)
+                .profileConfiguration(ModelHelper.buildModelProfileConfiguration(configuration))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel().getProfileConfiguration()).isNotNull();
+        assertThat(ModelHelper.buildRequestProfileConfiguration(response.getResourceModel().getProfileConfiguration())).isEqualTo(configuration);
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
+
+    @Test
+    public void handleRequest_FailedUpdate_ProfileJob_InvalidConfiguration() {
+        final UpdateHandler handler = new UpdateHandler();
+
+        doThrow(ValidationException.class)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        ProfileConfiguration configuration = ProfileConfiguration.builder()
+                .profileColumns(new ArrayList<>())
+                .datasetStatisticsConfiguration(StatisticsConfiguration.builder().build())
+                .build();
+
+        final ResourceModel model = ResourceModel.builder()
+                .type(JOB_TYPE_PROFILE)
+                .name(JOB_NAME)
+                .profileConfiguration(ModelHelper.buildModelProfileConfiguration(configuration))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+        assertThat(response.getResourceModel()).isNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
     }
 
 }

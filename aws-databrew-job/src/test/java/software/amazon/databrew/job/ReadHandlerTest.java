@@ -3,6 +3,7 @@ package software.amazon.databrew.job;
 import software.amazon.awssdk.services.databrew.model.DataBrewException;
 import software.amazon.awssdk.services.databrew.model.DescribeJobResponse;
 import software.amazon.awssdk.services.databrew.model.Job;
+import software.amazon.awssdk.services.databrew.model.ProfileConfiguration;
 import software.amazon.awssdk.services.databrew.model.ResourceNotFoundException;
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy;
 import software.amazon.cloudformation.proxy.HandlerErrorCode;
@@ -175,5 +176,45 @@ public class ReadHandlerTest {
         assertThat(response.getResourceModel().getOutputs().get(0).getFormatOptions().getCsv()).isNotNull();
         assertThat(response.getResourceModel().getOutputs().get(0).getFormatOptions().getCsv().getDelimiter())
                 .isEqualTo(TestUtil.PIPE_CSV_DELIMITER);
+    }
+
+    @Test
+    public void handleRequest_SuccessfulRead_ProfileJobConfiguration() {
+        final ReadHandler handler = new ReadHandler();
+
+        ProfileConfiguration configuration = ProfileConfiguration.builder()
+                .datasetStatisticsConfiguration(TestUtil.DATASET_STATISTICS_CONFIGURATION)
+                .profileColumns(TestUtil.PROFILE_COLUMNS)
+                .columnStatisticsConfigurations(TestUtil.COLUMN_STATISTICS_CONFIGURATIONS)
+                .build();
+
+        final DescribeJobResponse describeJobResponse = DescribeJobResponse.builder()
+                .type(TestUtil.JOB_TYPE_PROFILE)
+                .name(TestUtil.JOB_NAME)
+                .profileConfiguration(configuration)
+                .outputs(TestUtil.CSV_OUTPUT_VALID_DELIMITER)
+                .build();
+
+        doReturn(describeJobResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder().build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+        assertThat(response.getResourceModel().getProfileConfiguration()).isNotNull();
     }
 }
