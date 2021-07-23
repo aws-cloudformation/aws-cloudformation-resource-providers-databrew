@@ -91,6 +91,7 @@ public class CreateHandler extends BaseHandler<CallbackContext> {
                     .tags(ModelHelper.buildTagInputMap(model.getTags()))
                     .timeout(model.getTimeout())
                     .jobSample(ModelHelper.buildModelJobSample(model.getJobSample()))
+                    .configuration(ModelHelper.buildRequestProfileConfiguration(model.getProfileConfiguration()))
                     .build();
 
             try {

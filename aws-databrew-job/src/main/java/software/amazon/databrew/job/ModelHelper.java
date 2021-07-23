@@ -45,6 +45,7 @@ public class ModelHelper {
         } else if (job.typeAsString().equals(Type.PROFILE.toString())) {
             model.setOutputLocation(buildModelOutputLocation(job.outputs()));
             model.setJobSample(buildRequestJobSample(job.jobSample()));
+            model.setProfileConfiguration(buildModelProfileConfiguration(job.profileConfiguration()));
         }
 
         return model;
@@ -253,6 +254,127 @@ public class ModelHelper {
                 .tempDirectory(buildModelS3Location(requestDatabaseTableOutputOptions.tempDirectory()))
                 .tableName(requestDatabaseTableOutputOptions.tableName())
                 .build();
+    }
+
+    public static software.amazon.awssdk.services.databrew.model.ProfileConfiguration buildRequestProfileConfiguration(final ProfileConfiguration modelProfileConfiguration) {
+        return modelProfileConfiguration == null ? null : software.amazon.awssdk.services.databrew.model.ProfileConfiguration.builder()
+                .profileColumns(buildRequestColumnSelectors(modelProfileConfiguration.getProfileColumns()))
+                .datasetStatisticsConfiguration(buildRequestStatisticsConfiguration(modelProfileConfiguration.getDatasetStatisticsConfiguration()))
+                .columnStatisticsConfigurations(buildRequestColumnStatisticsConfigurations(modelProfileConfiguration.getColumnStatisticsConfigurations()))
+                .build();
+    }
+
+    public static ProfileConfiguration buildModelProfileConfiguration(final software.amazon.awssdk.services.databrew.model.ProfileConfiguration requestProfileConfiguration) {
+        return requestProfileConfiguration == null ? null : ProfileConfiguration.builder()
+                .profileColumns(buildModelColumnSelectors(requestProfileConfiguration.profileColumns()))
+                .datasetStatisticsConfiguration(buildModelStatisticsConfiguration(requestProfileConfiguration.datasetStatisticsConfiguration()))
+                .columnStatisticsConfigurations(buildModelColumnStatisticsConfigurations(requestProfileConfiguration.columnStatisticsConfigurations()))
+                .build();
+    }
+
+
+    public static List<software.amazon.awssdk.services.databrew.model.ColumnStatisticsConfiguration> buildRequestColumnStatisticsConfigurations(final List<ColumnStatisticsConfiguration> modelColumnStatisticsConfigurations) {
+        List<software.amazon.awssdk.services.databrew.model.ColumnStatisticsConfiguration> requestColumnStatisticsConfigurations = new ArrayList<>();
+        if (modelColumnStatisticsConfigurations == null) {
+            return null;
+        }
+        modelColumnStatisticsConfigurations.forEach(modelColumnStatisticsConfiguration -> {
+            software.amazon.awssdk.services.databrew.model.ColumnStatisticsConfiguration requestColumnStatisticsConfiguration = software.amazon.awssdk.services.databrew.model.ColumnStatisticsConfiguration.builder()
+                    .selectors(buildRequestColumnSelectors(modelColumnStatisticsConfiguration.getSelectors()))
+                    .statistics(buildRequestStatisticsConfiguration(modelColumnStatisticsConfiguration.getStatistics()))
+                    .build();
+            requestColumnStatisticsConfigurations.add(requestColumnStatisticsConfiguration);
+        });
+        return requestColumnStatisticsConfigurations;
+    }
+
+    public static List<ColumnStatisticsConfiguration> buildModelColumnStatisticsConfigurations(final List<software.amazon.awssdk.services.databrew.model.ColumnStatisticsConfiguration> requestColumnStatisticsConfigurations) {
+        List<ColumnStatisticsConfiguration> modelColumnStatisticsConfigurations = new ArrayList<>();
+        if (requestColumnStatisticsConfigurations == null) {
+            return null;
+        }
+        requestColumnStatisticsConfigurations.forEach(requestColumnStatisticsConfiguration -> {
+            ColumnStatisticsConfiguration modelColumnStatisticsConfiguration = ColumnStatisticsConfiguration.builder()
+                    .selectors(buildModelColumnSelectors(requestColumnStatisticsConfiguration.selectors()))
+                    .statistics(buildModelStatisticsConfiguration(requestColumnStatisticsConfiguration.statistics()))
+                    .build();
+            modelColumnStatisticsConfigurations.add(modelColumnStatisticsConfiguration);
+        });
+        return modelColumnStatisticsConfigurations;
+    }
+
+    public static List<software.amazon.awssdk.services.databrew.model.ColumnSelector> buildRequestColumnSelectors(final List<ColumnSelector> modelColumnSelectors) {
+        List<software.amazon.awssdk.services.databrew.model.ColumnSelector> requestColumnSelectors = new ArrayList<>();
+        if (modelColumnSelectors == null) {
+            return null;
+        }
+        modelColumnSelectors.forEach(modelColumnSelector -> {
+            software.amazon.awssdk.services.databrew.model.ColumnSelector requestProfileColumnSelector = software.amazon.awssdk.services.databrew.model.ColumnSelector.builder()
+                    .name(modelColumnSelector.getName())
+                    .regex(modelColumnSelector.getRegex())
+                    .build();
+            requestColumnSelectors.add(requestProfileColumnSelector);
+        });
+        return requestColumnSelectors;
+    }
+
+    public static List<ColumnSelector> buildModelColumnSelectors(final List<software.amazon.awssdk.services.databrew.model.ColumnSelector> requestColumnSelectors) {
+        List<ColumnSelector> modelProfileColumnSelectors = new ArrayList<>();
+        if (requestColumnSelectors == null) {
+            return null;
+        }
+        requestColumnSelectors.forEach(requestColumnSelector -> {
+            ColumnSelector modelColumnSelector = ColumnSelector.builder()
+                    .name(requestColumnSelector.name())
+                    .regex(requestColumnSelector.regex())
+                    .build();
+            modelProfileColumnSelectors.add(modelColumnSelector);
+        });
+        return modelProfileColumnSelectors;
+    }
+
+    public static software.amazon.awssdk.services.databrew.model.StatisticsConfiguration buildRequestStatisticsConfiguration(final StatisticsConfiguration modelStatisticsConfiguration) {
+        return modelStatisticsConfiguration == null ? null : software.amazon.awssdk.services.databrew.model.StatisticsConfiguration.builder()
+                .includedStatistics(modelStatisticsConfiguration.getIncludedStatistics())
+                .overrides(buildRequestStatisticOverrides(modelStatisticsConfiguration.getOverrides()))
+                .build();
+    }
+
+    public static StatisticsConfiguration buildModelStatisticsConfiguration(final software.amazon.awssdk.services.databrew.model.StatisticsConfiguration requestStatisticsConfiguration) {
+        return requestStatisticsConfiguration == null ? null : StatisticsConfiguration.builder()
+                .includedStatistics(requestStatisticsConfiguration.includedStatistics())
+                .overrides(buildModelStatisticOverrides(requestStatisticsConfiguration.overrides()))
+                .build();
+    }
+
+    public static List<software.amazon.awssdk.services.databrew.model.StatisticOverride> buildRequestStatisticOverrides(final List<StatisticOverride> modelStatisticOverrides) {
+        List<software.amazon.awssdk.services.databrew.model.StatisticOverride> requestStatisticOverrides = new ArrayList<>();
+        if (modelStatisticOverrides == null) {
+            return null;
+        }
+        modelStatisticOverrides.forEach(modelStatisticOverride -> {
+            software.amazon.awssdk.services.databrew.model.StatisticOverride requestStatisticOverride = software.amazon.awssdk.services.databrew.model.StatisticOverride.builder()
+                    .statistic(modelStatisticOverride.getStatistic())
+                    .parameters(modelStatisticOverride.getParameters())
+                    .build();
+            requestStatisticOverrides.add(requestStatisticOverride);
+        });
+        return requestStatisticOverrides;
+    }
+
+    public static List<StatisticOverride> buildModelStatisticOverrides(final List<software.amazon.awssdk.services.databrew.model.StatisticOverride> requestStatisticOverrides) {
+        List<StatisticOverride> modelStatisticOverrides = new ArrayList<>();
+        if (requestStatisticOverrides == null) {
+            return null;
+        }
+        requestStatisticOverrides.forEach(requestStatisticOverride -> {
+            StatisticOverride modelStatisticOverride = StatisticOverride.builder()
+                    .statistic(requestStatisticOverride.statistic())
+                    .parameters(requestStatisticOverride.parameters())
+                    .build();
+            modelStatisticOverrides.add(modelStatisticOverride);
+        });
+        return modelStatisticOverrides;
     }
 
     public static RecipeReference buildRequestRecipe(final Recipe modelRecipe) {

@@ -82,6 +82,7 @@ public class UpdateHandler extends BaseHandler<CallbackContext> {
                     .roleArn(model.getRoleArn())
                     .timeout(model.getTimeout())
                     .jobSample(ModelHelper.buildModelJobSample(model.getJobSample()))
+                    .configuration(ModelHelper.buildRequestProfileConfiguration(model.getProfileConfiguration()))
                     .build();
 
             try {

@@ -1,9 +1,13 @@
 package software.amazon.databrew.job;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import software.amazon.awssdk.services.databrew.model.ColumnSelector;
+import software.amazon.awssdk.services.databrew.model.ColumnStatisticsConfiguration;
 import software.amazon.awssdk.services.databrew.model.CsvOutputOptions;
 import software.amazon.awssdk.services.databrew.model.Job;
 import software.amazon.awssdk.services.databrew.model.OutputFormatOptions;
+import software.amazon.awssdk.services.databrew.model.ProfileConfiguration;
 import software.amazon.awssdk.services.databrew.model.SampleMode;
 import software.amazon.awssdk.services.databrew.model.S3Location;
 import software.amazon.awssdk.services.databrew.model.JobSample;
@@ -11,7 +15,10 @@ import software.amazon.awssdk.services.databrew.model.Output;
 import software.amazon.awssdk.services.databrew.model.DataCatalogOutput;
 import software.amazon.awssdk.services.databrew.model.S3TableOutputOptions;
 import software.amazon.awssdk.services.databrew.model.DatabaseTableOutputOptions;
+import software.amazon.awssdk.services.databrew.model.StatisticOverride;
+import software.amazon.awssdk.services.databrew.model.StatisticsConfiguration;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,6 +124,51 @@ public class TestUtil {
                 .size(Long.valueOf(500))
                 .build();
     }
+
+    public static final StatisticOverride COLUMN_STATISTIC_OVERRIDE = StatisticOverride.builder()
+            .statistic("OUTLIER_DETECTION")
+            .parameters(ImmutableMap.of(
+                    "threshold", "2",
+                    "sampleSize", "20"
+            ))
+            .build();
+
+    public static final StatisticsConfiguration COLUMN_STATISTICS_CONFIGURATION = StatisticsConfiguration.builder()
+            .includedStatistics(ImmutableList.of("OUTLIER_DETECTION"))
+            .overrides(ImmutableList.of(COLUMN_STATISTIC_OVERRIDE))
+            .build();
+
+    public static final List<ColumnStatisticsConfiguration> COLUMN_STATISTICS_CONFIGURATIONS = ImmutableList.of(
+            ColumnStatisticsConfiguration.builder()
+                    .statistics(COLUMN_STATISTICS_CONFIGURATION)
+                    .selectors(ImmutableList.of(ColumnSelector.builder()
+                            .regex(".*")
+                            .build()))
+                    .build()
+    );
+
+    public static final StatisticOverride DATASET_STATISTIC_OVERRIDE = StatisticOverride.builder()
+            .statistic("CORRELATION")
+            .parameters(ImmutableMap.of(
+                    "columnNumber", "2"
+            ))
+            .build();
+
+    public static final StatisticsConfiguration DATASET_STATISTICS_CONFIGURATION = StatisticsConfiguration.builder()
+            .includedStatistics(ImmutableList.of("CORRELATION"))
+            .overrides(ImmutableList.of(DATASET_STATISTIC_OVERRIDE))
+            .build();
+
+    public  static final List<ColumnSelector> PROFILE_COLUMNS = ImmutableList.of(
+            ColumnSelector.builder()
+                    .regex(".*")
+                    .build(),
+            ColumnSelector.builder()
+                    .name("columnName")
+                    .build()
+    );
+
+
     public static void assertThatJobModelsAreEqual(final Object rawModel,
                                                 final Job sdkModel) {
         assertThat(rawModel).isInstanceOf(ResourceModel.class);
