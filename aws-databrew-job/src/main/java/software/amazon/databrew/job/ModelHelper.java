@@ -1,5 +1,6 @@
 package software.amazon.databrew.job;
 
+import software.amazon.awssdk.services.databrew.model.DatabaseOutput;
 import software.amazon.awssdk.services.databrew.model.DescribeJobResponse;
 import software.amazon.awssdk.services.databrew.model.Job;
 import software.amazon.awssdk.services.databrew.model.S3Location;
@@ -211,6 +212,34 @@ public class ModelHelper {
             requestDataCatalogOutputs.add(requestDataCatalogOutput);
         });
         return requestDataCatalogOutputs;
+    }
+
+    public static List<DatabaseOutput> buildRequestDatabaseOutputs(final List<software.amazon.databrew.job.DatabaseOutput> databaseOutputs) {
+        List<DatabaseOutput> requestDatabaseOutputs = new ArrayList<>();
+        if (databaseOutputs == null) return null;
+        databaseOutputs.forEach(databaseOutput -> {
+            DatabaseOutput requestDataCatalogOutput = DatabaseOutput.builder()
+                    .glueConnectionName(databaseOutput.getGlueConnectionName())
+                    .databaseOutputMode(databaseOutput.getDatabaseOutputMode())
+                    .databaseOptions(buildRequestDatabaseTableOutputOptions(databaseOutput.getDatabaseOptions()))
+                    .build();
+            requestDatabaseOutputs.add(requestDataCatalogOutput);
+        });
+        return requestDatabaseOutputs;
+    }
+
+    public static List<software.amazon.databrew.job.DatabaseOutput> buildModelDatabaseOutputs(final List<DatabaseOutput> databaseOutputs) {
+        List<software.amazon.databrew.job.DatabaseOutput> modelDatabaseOutputs = new ArrayList<>();
+        if (databaseOutputs == null) return null;
+        databaseOutputs.forEach(databaseOutput -> {
+            software.amazon.databrew.job.DatabaseOutput modelDatabaseOutput = new software.amazon.databrew.job.DatabaseOutput().builder()
+                    .glueConnectionName(databaseOutput.glueConnectionName())
+                    .databaseOptions(buildModelDatabaseTableOutputOptions(databaseOutput.databaseOptions()))
+                    .databaseOutputMode(databaseOutput.databaseOutputModeAsString())
+                    .build();
+            modelDatabaseOutputs.add(modelDatabaseOutput);
+        });
+        return modelDatabaseOutputs;
     }
 
     public static List<software.amazon.databrew.job.DataCatalogOutput> buildModelDataCatalogOutputs(final List<DataCatalogOutput> dataCatalogOutputs) {

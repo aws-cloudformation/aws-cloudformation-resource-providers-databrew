@@ -65,6 +65,12 @@
         "$ref": "#/definitions/DataCatalogOutput"
       }
     },
+    "DatabaseOutputs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/DatabaseOutput"
+      }
+    },
     "OutputLocation": {
       "description": "Output location",
       "$ref": "#/definitions/OutputLocation"
@@ -271,6 +277,30 @@
       "additionalProperties": false,
       "required": [
         "TableName"
+      ]
+    },
+    "DatabaseOutput": {
+      "type": "object",
+      "properties": {
+        "GlueConnectionName": {
+          "description": "Glue connection name",
+          "type": "string"
+        },
+        "DatabaseOutputMode": {
+          "description": "Database table name",
+          "enum": [
+            "NEW_TABLE"
+          ],
+          "type": "string"
+        },
+        "DatabaseOptions": {
+          "$ref": "#/definitions/DatabaseTableOutputOptions"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "GlueConnectionName",
+        "DatabaseOptions"
       ]
     },
     "Recipe": {

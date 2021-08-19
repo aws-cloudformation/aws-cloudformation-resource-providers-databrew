@@ -647,5 +647,36 @@ public class UpdateHandlerTest {
         assertThat(response.getErrorCode()).isNull();
     }
 
+    @Test
+    public void handleRequest_SuccessfulUpdate_RecipeJob_ValidDatabaseOutput() {
+        final UpdateHandler handler = new UpdateHandler();
+        final UpdateRecipeJobResponse updateRecipeJobResponse = UpdateRecipeJobResponse.builder().build();
+        doReturn(updateRecipeJobResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
 
+        final ResourceModel model = ResourceModel.builder()
+                .type(JOB_TYPE_RECIPE)
+                .name(TestUtil.JOB_NAME)
+                .databaseOutputs(ModelHelper.buildModelDatabaseOutputs(TestUtil.DATABASE_OUTPUT_LIST))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+        assertThat(response.getResourceModel().getDatabaseOutputs().size()).isEqualTo(1);
+        assertThat(response.getResourceModel().getDatabaseOutputs().get(0).getDatabaseOptions()).isNotNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
 }
