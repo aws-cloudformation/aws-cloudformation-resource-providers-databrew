@@ -183,7 +183,8 @@
             "GLUEPARQUET",
             "AVRO",
             "ORC",
-            "XML"
+            "XML",
+            "TABLEAUHYPER"
           ],
           "type": "string"
         },
