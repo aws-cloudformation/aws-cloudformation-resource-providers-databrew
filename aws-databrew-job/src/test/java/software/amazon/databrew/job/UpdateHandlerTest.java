@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.services.databrew.model.ConflictException;
 import software.amazon.awssdk.services.databrew.model.DataBrewException;
+import software.amazon.awssdk.services.databrew.model.OutputFormat;
 import software.amazon.awssdk.services.databrew.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.databrew.model.UpdateProfileJobResponse;
 import software.amazon.awssdk.services.databrew.model.UpdateRecipeJobResponse;
@@ -34,8 +35,7 @@ import static software.amazon.databrew.job.TestUtil.JOB_TYPE_PROFILE;
 import static software.amazon.databrew.job.TestUtil.PROFILE_COLUMNS;
 import static software.amazon.databrew.job.TestUtil.DATASET_STATISTICS_CONFIGURATION;
 import static software.amazon.databrew.job.TestUtil.COLUMN_STATISTICS_CONFIGURATIONS;
-
-
+import static software.amazon.databrew.job.TestUtil.TABLEAUHYPER_OUTPUTS;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -614,5 +614,38 @@ public class UpdateHandlerTest {
         assertThat(response.getResourceModels()).isNull();
         assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
     }
+
+    @Test
+    public void handleRequest_Success_UpdateRecipeJob_ValidTABLEAUHYPEROutput() {
+        final UpdateHandler handler = new UpdateHandler();
+        final UpdateRecipeJobResponse updateRecipeJobResponse = UpdateRecipeJobResponse.builder().build();
+        doReturn(updateRecipeJobResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder()
+                .type(JOB_TYPE_RECIPE)
+                .name(JOB_NAME)
+                .outputs(ModelHelper.buildModelOutputs(TABLEAUHYPER_OUTPUTS))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel().getOutputs().size()).isEqualTo(1);
+        assertThat(response.getResourceModel().getOutputs().get(0).getFormat()).isEqualTo(OutputFormat.TABLEAUHYPER.name());
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
+
 
 }
