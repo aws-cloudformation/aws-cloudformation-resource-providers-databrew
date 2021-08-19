@@ -48,6 +48,7 @@ public class UpdateHandler extends BaseHandler<CallbackContext> {
                     .maxRetries(model.getMaxRetries())
                     .outputs(ModelHelper.buildRequestOutputs(model.getOutputs()))
                     .dataCatalogOutputs(ModelHelper.buildRequestDataCatalogOutputs(model.getDataCatalogOutputs()))
+                    .databaseOutputs(ModelHelper.buildRequestDatabaseOutputs(model.getDatabaseOutputs()))
                     .roleArn(model.getRoleArn())
                     .timeout(model.getTimeout())
                     .build();

@@ -52,6 +52,7 @@ public class CreateHandler extends BaseHandler<CallbackContext> {
                     .maxRetries(model.getMaxRetries())
                     .outputs(ModelHelper.buildRequestOutputs(model.getOutputs()))
                     .dataCatalogOutputs(ModelHelper.buildRequestDataCatalogOutputs(model.getDataCatalogOutputs()))
+                    .databaseOutputs(ModelHelper.buildRequestDatabaseOutputs(model.getDatabaseOutputs()))
                     .projectName(model.getProjectName())
                     .recipeReference(ModelHelper.buildRequestRecipe(model.getRecipe()))
                     .roleArn(model.getRoleArn())

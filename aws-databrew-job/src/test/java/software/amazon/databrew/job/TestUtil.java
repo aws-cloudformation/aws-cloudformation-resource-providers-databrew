@@ -13,6 +13,7 @@ import software.amazon.awssdk.services.databrew.model.S3Location;
 import software.amazon.awssdk.services.databrew.model.JobSample;
 import software.amazon.awssdk.services.databrew.model.Output;
 import software.amazon.awssdk.services.databrew.model.DataCatalogOutput;
+import software.amazon.awssdk.services.databrew.model.DatabaseOutput;
 import software.amazon.awssdk.services.databrew.model.S3TableOutputOptions;
 import software.amazon.awssdk.services.databrew.model.DatabaseTableOutputOptions;
 import software.amazon.awssdk.services.databrew.model.StatisticOverride;
@@ -70,6 +71,13 @@ public class TestUtil {
                     .databaseOptions(DatabaseTableOutputOptions.builder().tempDirectory(S3_LOCATION).tableName("table-name").build())
                     .build()
             );
+    public static final List<DatabaseOutput> DATABASE_OUTPUT_LIST = ImmutableList.of(
+            DatabaseOutput.builder()
+                    .glueConnectionName("database-name")
+                    .databaseOutputMode("NEW_TABLE")
+                    .databaseOptions(DatabaseTableOutputOptions.builder().tempDirectory(S3_LOCATION).tableName("table-name").build())
+                    .build()
+    );
     public static final List<DataCatalogOutput> INVALID_DATA_CATALOG_OUTPUT_LIST = ImmutableList.of(
             DataCatalogOutput.builder()
                     .databaseName("database-name")
