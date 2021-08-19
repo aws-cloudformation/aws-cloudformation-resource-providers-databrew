@@ -6,6 +6,7 @@ import software.amazon.awssdk.services.databrew.model.ColumnSelector;
 import software.amazon.awssdk.services.databrew.model.ColumnStatisticsConfiguration;
 import software.amazon.awssdk.services.databrew.model.CsvOutputOptions;
 import software.amazon.awssdk.services.databrew.model.Job;
+import software.amazon.awssdk.services.databrew.model.OutputFormat;
 import software.amazon.awssdk.services.databrew.model.OutputFormatOptions;
 import software.amazon.awssdk.services.databrew.model.ProfileConfiguration;
 import software.amazon.awssdk.services.databrew.model.SampleMode;
@@ -50,6 +51,10 @@ public class TestUtil {
                             .delimiter(PIPE_CSV_DELIMITER)
                             .build())
                     .build())
+            .build());
+    public static final List<Output> TABLEAUHYPER_OUTPUTS = ImmutableList.of(Output.builder()
+            .location(S3_LOCATION)
+            .format(OutputFormat.TABLEAUHYPER)
             .build());
     public static final List<Output> CSV_OUTPUT_INVALID_DELIMITER= ImmutableList.of(Output.builder()
             .location(S3_LOCATION)

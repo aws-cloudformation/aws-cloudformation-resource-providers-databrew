@@ -4,6 +4,7 @@ import software.amazon.awssdk.services.databrew.model.ConflictException;
 import software.amazon.awssdk.services.databrew.model.CreateProfileJobResponse;
 import software.amazon.awssdk.services.databrew.model.CreateRecipeJobResponse;
 import software.amazon.awssdk.services.databrew.model.DataBrewException;
+import software.amazon.awssdk.services.databrew.model.OutputFormat;
 import software.amazon.awssdk.services.databrew.model.ProfileConfiguration;
 import software.amazon.awssdk.services.databrew.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.databrew.model.StatisticsConfiguration;
@@ -34,6 +35,7 @@ import static software.amazon.databrew.job.TestUtil.JOB_NAME;
 import static software.amazon.databrew.job.TestUtil.JOB_TYPE_PROFILE;
 import static software.amazon.databrew.job.TestUtil.JOB_TYPE_RECIPE;
 import static software.amazon.databrew.job.TestUtil.TIMEOUT;
+import static software.amazon.databrew.job.TestUtil.TABLEAUHYPER_OUTPUTS;
 import static software.amazon.databrew.job.TestUtil.CSV_OUTPUT_VALID_DELIMITER;
 import static software.amazon.databrew.job.TestUtil.CSV_OUTPUT_INVALID_DELIMITER;
 import static software.amazon.databrew.job.TestUtil.DATASET_STATISTICS_CONFIGURATION;
@@ -697,6 +699,38 @@ public class CreateHandlerTest {
         assertThat(response.getResourceModel()).isNull();
         assertThat(response.getResourceModels()).isNull();
         assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
+    }
+
+    @Test
+    public void handleRequest_Success_CreateRecipeJob_ValidTABLEAUHYPEROutput() {
+        final CreateHandler handler = new CreateHandler();
+        final CreateRecipeJobResponse createRecipeJobResponse = CreateRecipeJobResponse.builder().build();
+        doReturn(createRecipeJobResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder()
+                .type(JOB_TYPE_RECIPE)
+                .name(JOB_NAME)
+                .outputs(ModelHelper.buildModelOutputs(TABLEAUHYPER_OUTPUTS))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel().getOutputs().size()).isEqualTo(1);
+        assertThat(response.getResourceModel().getOutputs().get(0).getFormat()).isEqualTo(OutputFormat.TABLEAUHYPER.name());
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
     }
 
 }
