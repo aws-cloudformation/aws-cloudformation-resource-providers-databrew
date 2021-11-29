@@ -17,6 +17,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -621,6 +623,61 @@ public class UpdateHandlerTest {
         assertThat(response.getResourceModel().getInput()).isNotNull();
         assertThat(response.getResourceModel().getInput().getDatabaseInputDefinition()).isNotNull();
         assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
+
+
+    @Test
+    public void handleRequest_SuccessfulUpdate_DatabaseSQLDataset() {
+        final UpdateHandler handler = new UpdateHandler();
+
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .input(TestUtil.DATABASE_SQL_INPUT)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getResourceModel().getInput().getDatabaseInputDefinition().getQueryString()).isNotEmpty();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
+
+    @Test
+    public void handleRequest_SuccessfulUpdate_MetadataInputDataset() {
+        final UpdateHandler handler = new UpdateHandler();
+
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .input(TestUtil.METADATA_INPUT_DATASET)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getResourceModel().getInput().getMetadata().getSourceArn()).isNotEmpty();
         assertThat(response.getMessage()).isNull();
         assertThat(response.getErrorCode()).isNull();
     }

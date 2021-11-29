@@ -624,4 +624,61 @@ public class CreateHandlerTest {
         assertThat(response.getErrorCode()).isNull();
     }
 
+    @Test
+    public void handleRequest_SuccessfulCreate_DatabaseSQLDataset() {
+        final CreateHandler handler = new CreateHandler();
+
+        Map<String, String> tags = TestUtil.sampleTags();
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .input(TestUtil.DATABASE_SQL_INPUT)
+                .tags(ModelHelper.buildModelTags(tags))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getResourceModel().getInput().getDatabaseInputDefinition().getQueryString()).isNotEmpty();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getResourceModel().getTags()).isNotNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
+
+
+    @Test
+    public void handleRequest_SuccessfulCreate_MetadataInputDataset() {
+        final CreateHandler handler = new CreateHandler();
+
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .input(TestUtil.METADATA_INPUT_DATASET)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getResourceModel().getInput().getMetadata().getSourceArn()).isNotEmpty();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
 }

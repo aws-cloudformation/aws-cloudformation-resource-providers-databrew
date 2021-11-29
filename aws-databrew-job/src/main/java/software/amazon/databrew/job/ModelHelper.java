@@ -47,6 +47,7 @@ public class ModelHelper {
             model.setOutputLocation(buildModelOutputLocation(job.outputs()));
             model.setJobSample(buildRequestJobSample(job.jobSample()));
             model.setProfileConfiguration(buildModelProfileConfiguration(job.profileConfiguration()));
+            model.setValidationConfigurations(buildModelValidationConfigurations(job.validationConfigurations()));
         }
 
         return model;
@@ -74,6 +75,7 @@ public class ModelHelper {
         } else if (job.typeAsString().equals(Type.PROFILE.toString())) {
             model.setOutputLocation(buildModelOutputLocation(job.outputs()));
             model.setJobSample(buildRequestJobSample(job.jobSample()));
+            model.setValidationConfigurations(buildModelValidationConfigurations(job.validationConfigurations()));
         }
 
         return model;
@@ -301,6 +303,35 @@ public class ModelHelper {
                 .build();
     }
 
+    public static List<software.amazon.databrew.job.ValidationConfiguration> buildModelValidationConfigurations(final
+        List<software.amazon.awssdk.services.databrew.model.ValidationConfiguration> requestValidationConfigurations) {
+        List<software.amazon.databrew.job.ValidationConfiguration> modelValidationConfigurations = new ArrayList<>();
+        if (requestValidationConfigurations == null) return null;
+        requestValidationConfigurations.forEach(validationConfiguration -> {
+            software.amazon.databrew.job.ValidationConfiguration modelValidationConfiguration =
+                    new software.amazon.databrew.job.ValidationConfiguration().builder()
+                    .rulesetArn(validationConfiguration.rulesetArn())
+                    .validationMode(validationConfiguration.validationMode().toString())
+                    .build();
+            modelValidationConfigurations.add(modelValidationConfiguration);
+        });
+        return modelValidationConfigurations;
+    }
+
+    public static List<software.amazon.awssdk.services.databrew.model.ValidationConfiguration> buildRequestValidationConfigurations(final List<software.amazon.databrew.job.ValidationConfiguration>
+                                                                                                                                            modelValidationConfigurations) {
+        List<software.amazon.awssdk.services.databrew.model.ValidationConfiguration> requestValidationConfigurations = new ArrayList<>();
+        if (modelValidationConfigurations == null) return null;
+        modelValidationConfigurations.forEach(validationConfiguration -> {
+            software.amazon.awssdk.services.databrew.model.ValidationConfiguration requestValidationConfiguration =
+                    software.amazon.awssdk.services.databrew.model.ValidationConfiguration.builder()
+                            .rulesetArn(validationConfiguration.getRulesetArn())
+                            .validationMode(validationConfiguration.getValidationMode())
+                            .build();
+            requestValidationConfigurations.add(requestValidationConfiguration);
+        });
+        return requestValidationConfigurations;
+    }
 
     public static List<software.amazon.awssdk.services.databrew.model.ColumnStatisticsConfiguration> buildRequestColumnStatisticsConfigurations(final List<ColumnStatisticsConfiguration> modelColumnStatisticsConfigurations) {
         List<software.amazon.awssdk.services.databrew.model.ColumnStatisticsConfiguration> requestColumnStatisticsConfigurations = new ArrayList<>();

@@ -12,6 +12,7 @@ import software.amazon.awssdk.services.databrew.model.FilterExpression;
 import software.amazon.awssdk.services.databrew.model.FormatOptions;
 import software.amazon.awssdk.services.databrew.model.Input;
 import software.amazon.awssdk.services.databrew.model.JsonOptions;
+import software.amazon.awssdk.services.databrew.model.Metadata;
 import software.amazon.awssdk.services.databrew.model.PathOptions;
 import software.amazon.awssdk.services.databrew.model.S3Location;
 import software.amazon.awssdk.services.databrew.model.DataCatalogInputDefinition;
@@ -70,6 +71,13 @@ public class ModelHelper {
                 .glueConnectionName(modelDatabaseInputDefinition.getGlueConnectionName())
                 .databaseTableName(modelDatabaseInputDefinition.getDatabaseTableName())
                 .tempDirectory(buildRequestS3Location(modelDatabaseInputDefinition.getTempDirectory()))
+                .queryString(modelDatabaseInputDefinition.getQueryString())
+                .build();
+    }
+
+    public static Metadata buildRequestMetadata(final software.amazon.databrew.dataset.Metadata modelMetadata) {
+        return modelMetadata == null ? null : Metadata.builder()
+                .sourceArn(modelMetadata.getSourceArn())
                 .build();
     }
 
@@ -79,6 +87,7 @@ public class ModelHelper {
                 .s3InputDefinition(buildRequestS3Location(modelInput.getS3InputDefinition()))
                 .dataCatalogInputDefinition(buildRequestDataCatalogInputDefinition(modelInput.getDataCatalogInputDefinition()))
                 .databaseInputDefinition(buildRequestDatabaseInputDefinition(modelInput.getDatabaseInputDefinition()))
+                .metadata(buildRequestMetadata(modelInput.getMetadata()))
                 .build();
     }
 
@@ -103,6 +112,13 @@ public class ModelHelper {
                 .glueConnectionName(requestDatabaseInputDefinition.glueConnectionName())
                 .databaseTableName(requestDatabaseInputDefinition.databaseTableName())
                 .tempDirectory(buildModelS3Location(requestDatabaseInputDefinition.tempDirectory()))
+                .queryString(requestDatabaseInputDefinition.queryString())
+                .build();
+    }
+
+    public static software.amazon.databrew.dataset.Metadata buildModelMetadata(final Metadata requestMetadata) {
+        return requestMetadata == null ? null : software.amazon.databrew.dataset.Metadata.builder()
+                .sourceArn(requestMetadata.sourceArn())
                 .build();
     }
 
@@ -112,6 +128,7 @@ public class ModelHelper {
                 .s3InputDefinition(buildModelS3Location(requestInput.s3InputDefinition()))
                 .dataCatalogInputDefinition(buildModelDataCatalogInputDefinition(requestInput.dataCatalogInputDefinition()))
                 .databaseInputDefinition(buildModelDatabaseInputDefinition(requestInput.databaseInputDefinition()))
+                .metadata(buildModelMetadata(requestInput.metadata()))
                 .build();
     }
 

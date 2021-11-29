@@ -50,6 +50,7 @@ public class ReadHandlerTest {
                 .dataCatalogOutputs(TestUtil.DATA_CATALOG_OUTPUT_LIST)
                 .jobSample(TestUtil.customRowsModeJobSample())
                 .timeout(TestUtil.TIMEOUT)
+                .validationConfigurations(TestUtil.createValidationConfigurations())
                 .build();
 
         final DescribeJobResponse describeJobResponse = DescribeJobResponse.builder()
@@ -59,6 +60,7 @@ public class ReadHandlerTest {
                 .outputs(TestUtil.OUTPUTS)
                 .dataCatalogOutputs(TestUtil.DATA_CATALOG_OUTPUT_LIST)
                 .timeout(job.timeout())
+                .validationConfigurations(TestUtil.createValidationConfigurations())
                 .build();
 
         doReturn(describeJobResponse)

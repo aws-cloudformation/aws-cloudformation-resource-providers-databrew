@@ -22,6 +22,7 @@ public class TestUtil {
     public static final String CSV_S3_KEY = "input.csv";
     public static final String TSV_S3_KEY = "input.tsv";
     public static final String EXCEL_S3_KEY = "input.xlsx";
+    public static final String METADATA_SOURCE_ARN = "arn:aws:appflow:us-east-1:123456789012:flow/test-flow";
     public static final String JSON_S3_KEY_EXTENSIONLESS = "input";
     public static final String PIPE_CSV_DELIMITER = "|";
     public static final String TAB_CSV_DELIMITER = "\t";
@@ -32,14 +33,31 @@ public class TestUtil {
     public static final String PARQUET_FORMAT = "PARQUET";
     public static final String GLUE_CONNECTION_NAME = "test-connection-name";
     public static final String DATABASE_TABLE_NAME = "test-table-name";
+    public static final String DATABASE_INPUT_SQL_STR = "SELECT * FROM SCHEMA.TABLE";
     public static final S3Location s3InputDefinition = S3Location.builder()
             .bucket(S3_BUCKET)
             .key(S3_KEY)
+            .build();
+    public static final DatabaseInputDefinition databaseSQLInputDefinition = DatabaseInputDefinition.builder()
+            .glueConnectionName(GLUE_CONNECTION_NAME)
+            .databaseTableName(DATABASE_TABLE_NAME)
+            .queryString(DATABASE_INPUT_SQL_STR)
+            .tempDirectory(s3InputDefinition)
+            .build();
+    public static final Metadata metadataInput = Metadata.builder()
+            .sourceArn(METADATA_SOURCE_ARN)
             .build();
     public static final DatabaseInputDefinition databaseInputDefinition = DatabaseInputDefinition.builder()
             .glueConnectionName(GLUE_CONNECTION_NAME)
             .databaseTableName(DATABASE_TABLE_NAME)
             .tempDirectory(s3InputDefinition)
+            .build();
+    public static final Input DATABASE_SQL_INPUT = Input.builder()
+            .databaseInputDefinition(databaseSQLInputDefinition)
+            .build();
+    public static final Input METADATA_INPUT_DATASET = Input.builder()
+            .s3InputDefinition(s3InputDefinition)
+            .metadata(metadataInput)
             .build();
     public static final Input DATABASE_INPUT = Input.builder()
             .databaseInputDefinition(databaseInputDefinition)

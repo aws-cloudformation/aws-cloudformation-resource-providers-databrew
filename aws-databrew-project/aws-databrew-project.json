@@ -2,6 +2,7 @@
   "typeName": "AWS::DataBrew::Project",
   "description": "Resource schema for AWS::DataBrew::Project.",
   "sourceUrl": "https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-databrew.git",
+  "taggable": true,
   "properties": {
     "DatasetName": {
       "description": "Dataset name",
@@ -31,6 +32,7 @@
     },
     "Tags": {
       "type": "array",
+      "insertionOrder": false,
       "uniqueItems": false,
       "items": {
         "$ref": "#/definitions/Tag"

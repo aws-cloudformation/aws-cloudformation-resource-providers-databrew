@@ -93,6 +93,7 @@ public class CreateHandler extends BaseHandler<CallbackContext> {
                     .timeout(model.getTimeout())
                     .jobSample(ModelHelper.buildModelJobSample(model.getJobSample()))
                     .configuration(ModelHelper.buildRequestProfileConfiguration(model.getProfileConfiguration()))
+                    .validationConfigurations(ModelHelper.buildRequestValidationConfigurations(model.getValidationConfigurations()))
                     .build();
 
             try {
