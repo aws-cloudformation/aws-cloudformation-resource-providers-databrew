@@ -2,6 +2,7 @@
   "typeName": "AWS::DataBrew::Dataset",
   "description": "Resource schema for AWS::DataBrew::Dataset.",
   "sourceUrl": "https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-databrew.git",
+  "taggable": true,
   "properties": {
     "Name": {
       "description": "Dataset name",
@@ -33,6 +34,7 @@
     },
     "Tags": {
       "type": "array",
+      "insertionOrder": false,
       "uniqueItems": false,
       "items": {
         "$ref": "#/definitions/Tag"
@@ -55,6 +57,7 @@
       "properties": {
         "SheetNames": {
           "type": "array",
+          "insertionOrder": true,
           "items": {
             "type": "string"
           },
@@ -63,6 +66,7 @@
         },
         "SheetIndexes": {
           "type": "array",
+          "insertionOrder": true,
           "items": {
             "type": "integer"
           },
@@ -116,23 +120,6 @@
           "$ref": "#/definitions/CsvOptions"
         }
       },
-      "oneOf": [
-        {
-          "required": [
-            "Json"
-          ]
-        },
-        {
-          "required": [
-            "Excel"
-          ]
-        },
-        {
-          "required": [
-            "Csv"
-          ]
-        }
-      ],
       "additionalProperties": false
     },
     "Input": {
@@ -147,25 +134,11 @@
         },
         "DatabaseInputDefinition": {
           "$ref": "#/definitions/DatabaseInputDefinition"
+        },
+        "Metadata": {
+          "$ref": "#/definitions/Metadata"
         }
       },
-      "oneOf": [
-        {
-          "required": [
-            "S3InputDefinition"
-          ]
-        },
-        {
-          "required": [
-            "DataCatalogInputDefinition"
-          ]
-        },
-        {
-          "required": [
-            "DatabaseInputDefinition"
-          ]
-        }
-      ],
       "additionalProperties": false
     },
     "S3Location": {
@@ -218,6 +191,23 @@
         },
         "TempDirectory": {
           "$ref": "#/definitions/S3Location"
+        },
+        "QueryString": {
+          "description": "Custom SQL to run against the provided AWS Glue connection. This SQL will be used as the input for DataBrew projects and jobs.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "GlueConnectionName"
+      ]
+    },
+    "Metadata": {
+      "type": "object",
+      "properties": {
+        "SourceArn": {
+          "description": "Arn of the source of the dataset. For e.g.: AppFlow Flow ARN.",
+          "type": "string"
         }
       },
       "additionalProperties": false
@@ -234,6 +224,7 @@
         },
         "Parameters": {
           "type": "array",
+          "insertionOrder": true,
           "items": {
             "$ref": "#/definitions/PathParameter"
           }
@@ -361,10 +352,11 @@
           "type": "string",
           "minLength": 4,
           "maxLength": 1024,
-          "pattern": "^[&lt;&gt;0-9A-Za-z_:)(!= ]+$"
+          "pattern": "^[><0-9A-Za-z_.,:)(!= ]+$"
         },
         "ValuesMap": {
           "type": "array",
+          "insertionOrder": true,
           "items": {
             "$ref": "#/definitions/FilterValue"
           }

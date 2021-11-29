@@ -2,6 +2,7 @@
   "typeName": "AWS::DataBrew::Recipe",
   "description": "Resource schema for AWS::DataBrew::Recipe.",
   "sourceUrl": "https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-databrew.git",
+  "taggable": true,
   "properties": {
     "Description": {
       "description": "Description of the recipe",
@@ -17,6 +18,7 @@
     },
     "Steps": {
       "type": "array",
+      "insertionOrder": true,
       "items": {
         "type": "object",
         "$ref": "#/definitions/RecipeStep"
@@ -24,6 +26,7 @@
     },
     "Tags": {
       "type": "array",
+      "insertionOrder": false,
       "uniqueItems": false,
       "items": {
         "$ref": "#/definitions/Tag"
@@ -102,6 +105,7 @@
         "ConditionExpressions": {
           "description": "Condition expressions applied to the step action",
           "type": "array",
+          "insertionOrder": true,
           "items": {
             "$ref": "#/definitions/ConditionExpression"
           }
@@ -364,6 +368,7 @@
         },
         "SecondaryInputs": {
           "type": "array",
+          "insertionOrder": true,
           "uniqueItems": false,
           "items": {
             "$ref": "#/definitions/SecondaryInput"
@@ -410,6 +415,7 @@
         },
         "SheetNames": {
           "type": "array",
+          "insertionOrder": true,
           "items": {
             "type": "string"
           },
@@ -418,6 +424,7 @@
         },
         "SheetIndexes": {
           "type": "array",
+          "insertionOrder": true,
           "items": {
             "type": "integer"
           },

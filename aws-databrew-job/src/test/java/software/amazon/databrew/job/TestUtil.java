@@ -2,23 +2,22 @@ package software.amazon.databrew.job;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import software.amazon.awssdk.services.databrew.model.*;
 import software.amazon.awssdk.services.databrew.model.ColumnSelector;
 import software.amazon.awssdk.services.databrew.model.ColumnStatisticsConfiguration;
 import software.amazon.awssdk.services.databrew.model.CsvOutputOptions;
-import software.amazon.awssdk.services.databrew.model.Job;
-import software.amazon.awssdk.services.databrew.model.OutputFormat;
-import software.amazon.awssdk.services.databrew.model.OutputFormatOptions;
-import software.amazon.awssdk.services.databrew.model.ProfileConfiguration;
-import software.amazon.awssdk.services.databrew.model.SampleMode;
-import software.amazon.awssdk.services.databrew.model.S3Location;
-import software.amazon.awssdk.services.databrew.model.JobSample;
-import software.amazon.awssdk.services.databrew.model.Output;
 import software.amazon.awssdk.services.databrew.model.DataCatalogOutput;
 import software.amazon.awssdk.services.databrew.model.DatabaseOutput;
-import software.amazon.awssdk.services.databrew.model.S3TableOutputOptions;
 import software.amazon.awssdk.services.databrew.model.DatabaseTableOutputOptions;
+import software.amazon.awssdk.services.databrew.model.JobSample;
+import software.amazon.awssdk.services.databrew.model.Output;
+import software.amazon.awssdk.services.databrew.model.OutputFormatOptions;
+import software.amazon.awssdk.services.databrew.model.ProfileConfiguration;
+import software.amazon.awssdk.services.databrew.model.S3Location;
+import software.amazon.awssdk.services.databrew.model.S3TableOutputOptions;
 import software.amazon.awssdk.services.databrew.model.StatisticOverride;
 import software.amazon.awssdk.services.databrew.model.StatisticsConfiguration;
+import software.amazon.awssdk.services.databrew.model.ValidationConfiguration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,6 +37,10 @@ public class TestUtil {
     public static final Integer UPDATED_TIMEOUT = 2880;
     public static final String PIPE_CSV_DELIMITER = "|";
     public static final String INVALID_CSV_DELIMITER = "*";
+    public static final String RULESET_ARN_1 = "arn:aws:databrew:us-east-1:123456789012:ruleset/test-ruleset-ds-1";
+    public static final String RULESET_ARN_2 = "arn:aws:databrew:us-east-1:123456789012:ruleset/test-ruleset-ds-2";
+    public static final String RULESET_ARN_3 = "arn:aws:databrew:us-east-1:123456789012:ruleset/test-ruleset-ds-3";
+    public static final String INVALID_RULESET_ARN = "arn:aws:databrew:us-east-1:123456789012:ruleset/test-ruleset-ds-3";
 
     public static final S3Location S3_LOCATION = S3Location.builder()
             .bucket(S3_BUCKET)
@@ -187,5 +190,41 @@ public class TestUtil {
         assertThat(rawModel).isInstanceOf(ResourceModel.class);
         ResourceModel model = (ResourceModel)rawModel;
         assertThat(model.getName()).isEqualTo(sdkModel.name());
+    }
+
+    public static List<ValidationConfiguration> createValidationConfigurations() {
+        final software.amazon.awssdk.services.databrew.model.ValidationConfiguration validationConfiguration1 =
+                software.amazon.awssdk.services.databrew.model.ValidationConfiguration.builder()
+                .rulesetArn(RULESET_ARN_1)
+                .validationMode(ValidationMode.CHECK_ALL)
+                .build();
+        final software.amazon.awssdk.services.databrew.model.ValidationConfiguration validationConfiguration2 =
+                software.amazon.awssdk.services.databrew.model.ValidationConfiguration.builder()
+                        .rulesetArn(RULESET_ARN_2)
+                        .validationMode(ValidationMode.CHECK_ALL)
+                        .build();
+
+        final software.amazon.awssdk.services.databrew.model.ValidationConfiguration validationConfiguration3 =
+                software.amazon.awssdk.services.databrew.model.ValidationConfiguration.builder()
+                        .rulesetArn(RULESET_ARN_3)
+                        .validationMode(ValidationMode.CHECK_ALL)
+                        .build();
+        List<software.amazon.awssdk.services.databrew.model.ValidationConfiguration> validationConfigurationList = new ArrayList<>();
+        validationConfigurationList.add(validationConfiguration1);
+        validationConfigurationList.add(validationConfiguration2);
+        validationConfigurationList.add(validationConfiguration3);
+        return validationConfigurationList;
+    }
+
+    public static List<ValidationConfiguration> createInvalidValidationConfigurations() {
+        final software.amazon.awssdk.services.databrew.model.ValidationConfiguration validationConfiguration1 =
+                software.amazon.awssdk.services.databrew.model.ValidationConfiguration.builder()
+                        .rulesetArn(INVALID_RULESET_ARN)
+                        .validationMode(ValidationMode.CHECK_ALL)
+                        .build();
+
+        List<software.amazon.awssdk.services.databrew.model.ValidationConfiguration> validationConfigurationList = new ArrayList<>();
+        validationConfigurationList.add(validationConfiguration1);
+        return validationConfigurationList;
     }
 }

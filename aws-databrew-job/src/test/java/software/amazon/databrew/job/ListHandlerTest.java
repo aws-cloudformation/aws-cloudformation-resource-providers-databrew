@@ -52,18 +52,21 @@ public class ListHandlerTest {
                 .name("job1")
                 .jobSample(TestUtil.fullDatasetModeJobSample())
                 .outputs(TestUtil.OUTPUTS)
+                .validationConfigurations(TestUtil.createValidationConfigurations())
                 .build();
         Job job2 = Job.builder()
                 .type(TestUtil.JOB_TYPE_PROFILE)
                 .name("job2")
                 .jobSample(TestUtil.customRowsModeJobSample())
                 .outputs(TestUtil.OUTPUTS)
+                .validationConfigurations(TestUtil.createValidationConfigurations())
                 .build();
         // When job sample is empty then it defaults to Mode : CUSTOM_ROWS and Size : 20000
         Job job3 = Job.builder()
                 .type(TestUtil.JOB_TYPE_PROFILE)
                 .name("job2")
                 .outputs(TestUtil.OUTPUTS)
+                .validationConfigurations(TestUtil.createValidationConfigurations())
                 .build();
         jobs.add(job1);
         jobs.add(job2);

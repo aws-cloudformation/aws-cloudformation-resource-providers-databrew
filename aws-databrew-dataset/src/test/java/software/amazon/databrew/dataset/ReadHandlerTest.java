@@ -1,9 +1,13 @@
 package software.amazon.databrew.dataset;
 
 import software.amazon.awssdk.services.databrew.model.DataBrewException;
+import software.amazon.awssdk.services.databrew.model.DatabaseInputDefinition;
 import software.amazon.awssdk.services.databrew.model.Dataset;
 import software.amazon.awssdk.services.databrew.model.DescribeDatasetResponse;
+import software.amazon.awssdk.services.databrew.model.Input;
+import software.amazon.awssdk.services.databrew.model.Metadata;
 import software.amazon.awssdk.services.databrew.model.ResourceNotFoundException;
+import software.amazon.awssdk.services.databrew.model.S3Location;
 import software.amazon.awssdk.services.databrew.model.ValidationException;
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy;
 import software.amazon.cloudformation.proxy.HandlerErrorCode;
@@ -17,6 +21,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
@@ -151,5 +157,102 @@ public class ReadHandlerTest {
         assertThat(response.getResourceModel()).isNull();
         assertThat(response.getResourceModels()).isNull();
         assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.NotFound);
+    }
+
+
+    @Test
+    public void handleRequest_SuccessfulRead_DatabaseSQLDataset() {
+        final ReadHandler handler = new ReadHandler();
+
+        Input datasetInput = Input.builder().databaseInputDefinition(
+                DatabaseInputDefinition.builder()
+                        .queryString(TestUtil.DATABASE_INPUT_SQL_STR)
+                        .glueConnectionName(TestUtil.GLUE_CONNECTION_NAME)
+                        .build()
+        ).build();
+
+        Dataset dataset = Dataset.builder()
+                .name(TestUtil.DATASET_NAME)
+                .input(datasetInput)
+                .build();
+
+        final DescribeDatasetResponse describeResult = DescribeDatasetResponse.builder()
+                .name(TestUtil.DATASET_NAME)
+                .input(datasetInput)
+                .build();
+
+        doReturn(describeResult)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getResourceModel().getInput().getDatabaseInputDefinition().getQueryString()).isNotEmpty();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getResourceModel().getTags()).isNotNull();
+        assertThat(response.getErrorCode()).isNull();
+        TestUtil.assertThatDatasetModelsAreEqual(response.getResourceModel(), dataset);
+    }
+
+
+    @Test
+    public void handleRequest_SuccessfulRead_MetadataInputDataset() {
+        final ReadHandler handler = new ReadHandler();
+
+        Input datasetInput = Input.builder()
+                .s3InputDefinition(S3Location.builder().bucket(TestUtil.S3_BUCKET).key(TestUtil.S3_KEY).build())
+                .metadata(Metadata.builder().sourceArn(TestUtil.METADATA_SOURCE_ARN).build())
+                .build();
+
+        Dataset dataset = Dataset.builder()
+                .name(TestUtil.DATASET_NAME)
+                .input(datasetInput)
+                .build();
+
+        final DescribeDatasetResponse describeResult = DescribeDatasetResponse.builder()
+                .name(TestUtil.DATASET_NAME)
+                .input(datasetInput)
+                .build();
+
+        doReturn(describeResult)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+
+        final ResourceModel model = ResourceModel.builder()
+                .name(TestUtil.DATASET_NAME)
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getResourceModel().getInput().getMetadata().getSourceArn()).isNotEmpty();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+        TestUtil.assertThatDatasetModelsAreEqual(response.getResourceModel(), dataset);
     }
 }

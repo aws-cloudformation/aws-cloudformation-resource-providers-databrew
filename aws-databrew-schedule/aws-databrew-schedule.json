@@ -2,9 +2,11 @@
   "typeName": "AWS::DataBrew::Schedule",
   "description": "Resource schema for AWS::DataBrew::Schedule.",
   "sourceUrl": "https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-databrew.git",
+  "taggable": true,
   "properties": {
     "JobNames": {
       "type": "array",
+      "insertionOrder": true,
       "uniqueItems": true,
       "items": {
         "$ref": "#/definitions/JobName"
@@ -24,6 +26,7 @@
     },
     "Tags": {
       "type": "array",
+      "insertionOrder": false,
       "uniqueItems": false,
       "items": {
         "$ref": "#/definitions/Tag"

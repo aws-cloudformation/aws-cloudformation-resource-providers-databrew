@@ -65,6 +65,7 @@ public class UpdateHandlerTest {
                 .type(TestUtil.JOB_TYPE_PROFILE)
                 .name(TestUtil.JOB_NAME)
                 .timeout(TestUtil.TIMEOUT)
+                .validationConfigurations(ModelHelper.buildModelValidationConfigurations(TestUtil.createValidationConfigurations()))
                 .build();
 
         final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()

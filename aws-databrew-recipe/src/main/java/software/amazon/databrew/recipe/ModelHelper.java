@@ -15,6 +15,8 @@ import java.util.Map;
 
 
 public class ModelHelper {
+    private static final ObjectMapper mapper = new ObjectMapper();
+
     public static ResourceModel constructModel(final DescribeRecipeResponse recipe) {
         Map<String, String> tags = recipe.tags();
         return ResourceModel.builder()
@@ -57,7 +59,6 @@ public class ModelHelper {
         List<software.amazon.databrew.recipe.RecipeStep> modelRecipeSteps = new ArrayList<>();
         if (requestRecipeSteps != null) {
             requestRecipeSteps.forEach(recipeStep -> {
-                ObjectMapper mapper = new ObjectMapper();
                 Map<String, String> tempMap = recipeStep.action().parameters();
                 Map<String, String> parametersMap = new HashMap<>();
                 if (tempMap != null) {
@@ -97,9 +98,7 @@ public class ModelHelper {
             modelRecipeSteps.forEach(step -> {
                 Action modelRecipeAction = step.getAction();
                 Object parameters = modelRecipeAction.getParameters();
-                ObjectMapper m = new ObjectMapper();
-                Map<String, String> tempMap = m.convertValue(parameters, new TypeReference<Map<String, String>>() {
-                });
+                Map<String, String> tempMap = mapper.convertValue(parameters, new TypeReference<Map<String, String>>() { });
                 Map<String, String> parametersMap = new HashMap<>();
                 if (tempMap != null) {
                     tempMap.forEach((key, value) -> parametersMap.put(Character.toLowerCase(key.charAt(0)) + key.substring(1), value));
