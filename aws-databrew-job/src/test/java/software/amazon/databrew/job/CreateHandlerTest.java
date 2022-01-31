@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.databrew.model.ProfileConfiguration;
 import software.amazon.awssdk.services.databrew.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.databrew.model.StatisticsConfiguration;
 import software.amazon.awssdk.services.databrew.model.ValidationException;
+import software.amazon.awssdk.services.databrew.model.AccessDeniedException;
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy;
 import software.amazon.cloudformation.proxy.HandlerErrorCode;
 import software.amazon.cloudformation.proxy.Logger;
@@ -41,6 +42,9 @@ import static software.amazon.databrew.job.TestUtil.CSV_OUTPUT_INVALID_DELIMITER
 import static software.amazon.databrew.job.TestUtil.DATASET_STATISTICS_CONFIGURATION;
 import static software.amazon.databrew.job.TestUtil.PROFILE_COLUMNS;
 import static software.amazon.databrew.job.TestUtil.COLUMN_STATISTICS_CONFIGURATIONS;
+import static software.amazon.databrew.job.TestUtil.VALID_BUCKET_OWNER_OUTPUT;
+import static software.amazon.databrew.job.TestUtil.INVALID_BUCKET_OWNER_OUTPUT;
+import static software.amazon.databrew.job.TestUtil.VALID_BUCKET_OWNER;
 
 @ExtendWith(MockitoExtension.class)
 public class CreateHandlerTest {
@@ -819,6 +823,123 @@ public class CreateHandlerTest {
         assertThat(response.getResourceModels()).isNull();
         assertThat(response.getMessage()).isNull();
         assertThat(response.getErrorCode()).isNull();
+    }
+
+    @Test
+    public void handleRequest_SuccessfulCreate_RecipeJob_ValidBucketOwner() {
+        final CreateHandler handler = new CreateHandler();
+        final CreateRecipeJobResponse createRecipeJobResponse = CreateRecipeJobResponse.builder().build();
+        doReturn(createRecipeJobResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder()
+                .type(JOB_TYPE_RECIPE)
+                .name(JOB_NAME)
+                .outputs(ModelHelper.buildModelOutputs(VALID_BUCKET_OWNER_OUTPUT))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel().getOutputs().size()).isEqualTo(1);
+        assertThat(response.getResourceModel().getOutputs().get(0).getLocation().getBucketOwner()).isEqualTo(VALID_BUCKET_OWNER);
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
+
+    @Test
+    public void handleRequest_SuccessfulCreate_ProfileJob_ValidBucketOwner() {
+        final CreateHandler handler = new CreateHandler();
+        final CreateProfileJobResponse createProfileJobResponse = CreateProfileJobResponse.builder().build();
+        doReturn(createProfileJobResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder()
+                .type(JOB_TYPE_PROFILE)
+                .name(JOB_NAME)
+                .outputLocation(ModelHelper.buildModelOutputLocation(VALID_BUCKET_OWNER_OUTPUT))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel().getOutputLocation().getBucketOwner()).isEqualTo(VALID_BUCKET_OWNER);
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
+
+    @Test
+    public void handleRequest_FailedCreate_RecipeJob_InvalidBucketOwner() {
+        doThrow(AccessDeniedException.class)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final CreateHandler handler = new CreateHandler();
+        final ResourceModel model = ResourceModel.builder()
+                .type(JOB_TYPE_RECIPE)
+                .name(JOB_NAME)
+                .outputs(ModelHelper.buildModelOutputs(INVALID_BUCKET_OWNER_OUTPUT))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+        assertThat(response.getResourceModel()).isNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.ServiceInternalError);
+    }
+
+    @Test
+    public void handleRequest_FailedCreate_ProfileJob_InvalidBucketOwner() {
+        doThrow(AccessDeniedException.class)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final CreateHandler handler = new CreateHandler();
+        final ResourceModel model = ResourceModel.builder()
+                .type(JOB_TYPE_PROFILE)
+                .name(JOB_NAME)
+                .outputLocation(ModelHelper.buildModelOutputLocation(INVALID_BUCKET_OWNER_OUTPUT))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+        assertThat(response.getResourceModel()).isNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.ServiceInternalError);
     }
 
 }
