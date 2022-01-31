@@ -115,6 +115,7 @@ public class ModelHelper {
         return modelS3Location == null ? null : S3Location.builder()
                 .bucket(modelS3Location.getBucket())
                 .key(modelS3Location.getKey())
+                .bucketOwner(modelS3Location.getBucketOwner())
                 .build();
     }
 
@@ -122,6 +123,7 @@ public class ModelHelper {
         return modelS3Location == null ? null : S3Location.builder()
                 .bucket(modelS3Location.getBucket())
                 .key(modelS3Location.getKey())
+                .bucketOwner(modelS3Location.getBucketOwner())
                 .build();
     }
 
@@ -130,6 +132,7 @@ public class ModelHelper {
         return requestOutputs.get(0).location() == null ? null : software.amazon.databrew.job.OutputLocation.builder()
                 .bucket(requestOutputs.get(0).location().bucket())
                 .key(requestOutputs.get(0).location().key())
+                .bucketOwner(requestOutputs.get(0).location().bucketOwner())
                 .build();
     }
 
@@ -162,6 +165,7 @@ public class ModelHelper {
         return requestS3Location == null ? null : software.amazon.databrew.job.S3Location.builder()
                 .bucket(requestS3Location.bucket())
                 .key(requestS3Location.key())
+                .bucketOwner(requestS3Location.bucketOwner())
                 .build();
     }
 
