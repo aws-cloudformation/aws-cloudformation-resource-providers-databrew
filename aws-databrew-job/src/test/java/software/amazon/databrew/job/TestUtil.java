@@ -37,6 +37,8 @@ public class TestUtil {
     public static final Integer UPDATED_TIMEOUT = 2880;
     public static final String PIPE_CSV_DELIMITER = "|";
     public static final String INVALID_CSV_DELIMITER = "*";
+    public static final String VALID_BUCKET_OWNER = "123456789012";
+    public static final String INVALID_BUCKET_OWNER = "000000000000";
     public static final String RULESET_ARN_1 = "arn:aws:databrew:us-east-1:123456789012:ruleset/test-ruleset-ds-1";
     public static final String RULESET_ARN_2 = "arn:aws:databrew:us-east-1:123456789012:ruleset/test-ruleset-ds-2";
     public static final String RULESET_ARN_3 = "arn:aws:databrew:us-east-1:123456789012:ruleset/test-ruleset-ds-3";
@@ -44,6 +46,14 @@ public class TestUtil {
 
     public static final S3Location S3_LOCATION = S3Location.builder()
             .bucket(S3_BUCKET)
+            .build();
+    public static final S3Location S3_LOCATION_VALID_BUCKET_OWNER = S3Location.builder()
+            .bucket(S3_BUCKET)
+            .bucketOwner(VALID_BUCKET_OWNER)
+            .build();
+    public static final S3Location S3_LOCATION_INVALID_BUCKET_OWNER = S3Location.builder()
+            .bucket(S3_BUCKET)
+            .bucketOwner(INVALID_BUCKET_OWNER)
             .build();
     public static final List<Output> OUTPUTS = ImmutableList.of(Output.builder()
             .location(S3_LOCATION).build());
@@ -67,6 +77,10 @@ public class TestUtil {
                             .build())
                     .build())
             .build());
+    public static final List<Output> VALID_BUCKET_OWNER_OUTPUT = ImmutableList.of(Output.builder()
+            .location(S3_LOCATION_VALID_BUCKET_OWNER).build());
+    public static final List<Output> INVALID_BUCKET_OWNER_OUTPUT = ImmutableList.of(Output.builder()
+            .location(S3_LOCATION_INVALID_BUCKET_OWNER).build());
     public static final List<DataCatalogOutput> DATA_CATALOG_OUTPUT_LIST = ImmutableList.of(
             DataCatalogOutput.builder()
                     .databaseName("database-name")
