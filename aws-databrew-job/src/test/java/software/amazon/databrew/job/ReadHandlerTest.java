@@ -219,4 +219,45 @@ public class ReadHandlerTest {
         assertThat(response.getErrorCode()).isNull();
         assertThat(response.getResourceModel().getProfileConfiguration()).isNotNull();
     }
+
+    @Test
+    public void handleRequest_SuccessfulRead_BucketOwner_IsShown() {
+        final ReadHandler handler = new ReadHandler();
+
+        Job job = Job.builder()
+                .type(TestUtil.JOB_TYPE_PROFILE)
+                .name(TestUtil.JOB_NAME)
+                .outputs(TestUtil.VALID_BUCKET_OWNER_OUTPUT)
+                .build();
+
+        final DescribeJobResponse describeJobResponse = DescribeJobResponse.builder()
+                .type(job.type())
+                .name(job.name())
+                .outputs(TestUtil.VALID_BUCKET_OWNER_OUTPUT)
+                .build();
+
+        doReturn(describeJobResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder().build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+        TestUtil.assertThatJobModelsAreEqual(response.getResourceModel(), job);
+        assertThat(response.getResourceModel().getOutputLocation()).isNotNull();
+        assertThat(response.getResourceModel().getOutputLocation().getBucketOwner()).isEqualTo(TestUtil.VALID_BUCKET_OWNER);
+    }
 }
