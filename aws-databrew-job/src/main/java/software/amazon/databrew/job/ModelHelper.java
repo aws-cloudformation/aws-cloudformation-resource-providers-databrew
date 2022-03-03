@@ -179,6 +179,7 @@ public class ModelHelper {
                     .formatOptions(buildRequestFormatOptions(output.getFormatOptions()))
                     .partitionColumns(output.getPartitionColumns())
                     .location(buildRequestS3Location(output.getLocation()))
+                    .maxOutputFiles(output.getMaxOutputFiles())
                     .overwrite(output.getOverwrite())
                     .build();
            requestOutputs.add(requestOutput);
@@ -196,6 +197,7 @@ public class ModelHelper {
                     .formatOptions(buildModelFormatOptions(output.formatOptions()))
                     .partitionColumns(output.partitionColumns())
                     .location(buildModelS3Location(output.location()))
+                    .maxOutputFiles(output.maxOutputFiles())
                     .overwrite(output.overwrite())
                     .build();
             modelOutputs.add(modelOutput);

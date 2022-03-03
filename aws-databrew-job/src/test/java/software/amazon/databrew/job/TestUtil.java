@@ -65,6 +65,15 @@ public class TestUtil {
                             .build())
                     .build())
             .build());
+    public static final List<Output> CSV_OUTPUT_WITH_MAX_OUTPUT_FILES= ImmutableList.of(Output.builder()
+            .location(S3_LOCATION)
+            .formatOptions(OutputFormatOptions.builder()
+                    .csv(CsvOutputOptions.builder()
+                            .delimiter(PIPE_CSV_DELIMITER)
+                            .build())
+                    .build())
+            .maxOutputFiles(1)
+            .build());
     public static final List<Output> TABLEAUHYPER_OUTPUTS = ImmutableList.of(Output.builder()
             .location(S3_LOCATION)
             .format(OutputFormat.TABLEAUHYPER)

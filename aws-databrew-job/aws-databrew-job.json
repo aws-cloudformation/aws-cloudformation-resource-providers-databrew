@@ -231,6 +231,11 @@
         "Location": {
           "$ref": "#/definitions/S3Location"
         },
+        "MaxOutputFiles": {
+          "maximum": 999,
+          "minimum": 1,
+          "type": "integer"
+        },
         "Overwrite": {
           "type": "boolean"
         }
