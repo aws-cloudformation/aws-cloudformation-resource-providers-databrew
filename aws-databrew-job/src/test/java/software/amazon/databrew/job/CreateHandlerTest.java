@@ -30,6 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static software.amazon.databrew.job.TestUtil.CSV_OUTPUT_WITH_MAX_OUTPUT_FILES;
 import static software.amazon.databrew.job.TestUtil.DATA_CATALOG_OUTPUT_LIST;
 import static software.amazon.databrew.job.TestUtil.INVALID_JOB_NAME;
 import static software.amazon.databrew.job.TestUtil.JOB_NAME;
@@ -622,9 +623,42 @@ public class CreateHandlerTest {
         assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
         assertThat(response.getResourceModel().getOutputs().size()).isEqualTo(1);
         assertThat(response.getResourceModel().getOutputs().get(0).getFormatOptions()).isNotNull();
+        assertThat(response.getResourceModel().getOutputs().get(0).getMaxOutputFiles()).isNull();
         assertThat(response.getResourceModel().getOutputs().get(0).getFormatOptions().getCsv()).isNotNull();
         assertThat(response.getResourceModel().getOutputs().get(0).getFormatOptions().getCsv().getDelimiter())
                 .isEqualTo(TestUtil.PIPE_CSV_DELIMITER);
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
+
+    @Test
+    public void handleRequest_SuccessfulCreate_RecipeJob_WithMaxOutputFiles() {
+        final CreateHandler handler = new CreateHandler();
+        final CreateRecipeJobResponse createRecipeJobResponse = CreateRecipeJobResponse.builder().build();
+        doReturn(createRecipeJobResponse)
+                .when(proxy)
+                .injectCredentialsAndInvokeV2(any(), any());
+
+        final ResourceModel model = ResourceModel.builder()
+                .type(JOB_TYPE_RECIPE)
+                .name(JOB_NAME)
+                .outputs(ModelHelper.buildModelOutputs(CSV_OUTPUT_WITH_MAX_OUTPUT_FILES))
+                .build();
+
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+                .desiredResourceState(model)
+                .build();
+
+        final ProgressEvent<ResourceModel, CallbackContext> response
+                = handler.handleRequest(proxy, request, null, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackContext()).isNull();
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel().getOutputs().size()).isEqualTo(1);
+        assertThat(response.getResourceModel().getOutputs().get(0).getMaxOutputFiles()).isEqualTo(1);
         assertThat(response.getResourceModels()).isNull();
         assertThat(response.getMessage()).isNull();
         assertThat(response.getErrorCode()).isNull();

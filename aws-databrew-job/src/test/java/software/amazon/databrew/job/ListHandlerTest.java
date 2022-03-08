@@ -137,7 +137,13 @@ public class ListHandlerTest {
                 .outputs(TestUtil.CSV_OUTPUT_VALID_DELIMITER)
                 .dataCatalogOutputs(TestUtil.DATA_CATALOG_OUTPUT_LIST)
                 .build();
+        Job job2 = Job.builder()
+                .type(TestUtil.JOB_TYPE_RECIPE)
+                .name("Job2")
+                .outputs(TestUtil.CSV_OUTPUT_WITH_MAX_OUTPUT_FILES)
+                .build();
         jobs.add(job);
+        jobs.add(job2);
 
         final ListJobsResponse listJobsResponse = ListJobsResponse.builder()
                 .jobs(jobs)
@@ -161,10 +167,11 @@ public class ListHandlerTest {
         assertThat(response.getCallbackContext()).isNull();
         assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
         assertThat(response.getResourceModel()).isNull();
-        assertThat(response.getResourceModels().size()).isEqualTo(1);
+        assertThat(response.getResourceModels().size()).isEqualTo(2);
         assertThat(response.getMessage()).isNull();
         assertThat(response.getErrorCode()).isNull();
         assertThatJobModelsAreEqual(response.getResourceModels().get(0), job);
+        assertThatJobModelsAreEqual(response.getResourceModels().get(1), job2);
     }
 
     @Test
