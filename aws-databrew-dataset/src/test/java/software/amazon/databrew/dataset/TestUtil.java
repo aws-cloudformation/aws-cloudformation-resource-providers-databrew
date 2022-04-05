@@ -22,6 +22,7 @@ public class TestUtil {
     public static final String CSV_S3_KEY = "input.csv";
     public static final String TSV_S3_KEY = "input.tsv";
     public static final String EXCEL_S3_KEY = "input.xlsx";
+    public static final String ORC_S3_KEY = "input.orc";
     public static final String METADATA_SOURCE_ARN = "arn:aws:appflow:us-east-1:123456789012:flow/test-flow";
     public static final String JSON_S3_KEY_EXTENSIONLESS = "input";
     public static final String PIPE_CSV_DELIMITER = "|";
@@ -31,6 +32,7 @@ public class TestUtil {
     public static final String EXCEL_FORMAT = "EXCEL";
     public static final String JSON_FORMAT = "JSON";
     public static final String PARQUET_FORMAT = "PARQUET";
+    public static final String ORC_FORMAT = "ORC";
     public static final String GLUE_CONNECTION_NAME = "test-connection-name";
     public static final String DATABASE_TABLE_NAME = "test-table-name";
     public static final String DATABASE_INPUT_SQL_STR = "SELECT * FROM SCHEMA.TABLE";
@@ -113,8 +115,15 @@ public class TestUtil {
             .bucket(S3_BUCKET)
             .key(EXCEL_S3_KEY)
             .build();
+    public static final S3Location orcS3InputDefinition = S3Location.builder()
+            .bucket(S3_BUCKET)
+            .key(ORC_S3_KEY)
+            .build();
     public static final Input EXCEL_S3_INPUT = Input.builder()
             .s3InputDefinition(excelS3InputDefinition)
+            .build();
+    public static final Input ORC_S3_INPUT = Input.builder()
+            .s3InputDefinition(orcS3InputDefinition)
             .build();
     public static final S3Location jsonS3InputDefinition = S3Location.builder()
             .bucket(S3_BUCKET)
