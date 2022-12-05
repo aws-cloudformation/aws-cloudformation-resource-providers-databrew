@@ -27,7 +27,7 @@ Resources:
                 - "databrew:DeleteProject"
                 - "databrew:ListProjects"
                 - "databrew:ListTagsForResource"
-                - "databrew:ReadProject"
+                - "databrew:DescribeProject"
                 - "databrew:TagResource"
                 - "databrew:UntagResource"
                 - "databrew:UpdateProject"

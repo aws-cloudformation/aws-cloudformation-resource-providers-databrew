@@ -1,22 +1,25 @@
 package software.amazon.databrew.job;
 
-import software.amazon.awssdk.services.databrew.model.DatabaseOutput;
+import com.amazonaws.util.CollectionUtils;
+import software.amazon.awssdk.services.databrew.model.AllowedStatistics;
 import software.amazon.awssdk.services.databrew.model.DescribeJobResponse;
 import software.amazon.awssdk.services.databrew.model.Job;
 import software.amazon.awssdk.services.databrew.model.S3Location;
 import software.amazon.awssdk.services.databrew.model.Output;
 import software.amazon.awssdk.services.databrew.model.DataCatalogOutput;
+import software.amazon.awssdk.services.databrew.model.DatabaseOutput;
 import software.amazon.awssdk.services.databrew.model.S3TableOutputOptions;
 import software.amazon.awssdk.services.databrew.model.DatabaseTableOutputOptions;
 import software.amazon.awssdk.services.databrew.model.RecipeReference;
 import software.amazon.awssdk.services.databrew.model.OutputFormatOptions;
 import software.amazon.awssdk.services.databrew.model.CsvOutputOptions;
 import software.amazon.awssdk.services.databrew.model.SampleMode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Optional;
 
 public class ModelHelper {
     public enum Type {
@@ -36,6 +39,7 @@ public class ModelHelper {
                 .maxCapacity(job.maxCapacity())
                 .maxRetries(job.maxRetries())
                 .recipe(buildModelRecipe(job.recipeReference()))
+                .projectName(job.projectName())
                 .roleArn(job.roleArn())
                 .tags(tags != null ? buildModelTags(tags) : null)
                 .timeout(job.timeout())
@@ -43,6 +47,7 @@ public class ModelHelper {
         if (job.typeAsString().equals(Type.RECIPE.toString())) {
             model.setOutputs(buildModelOutputs(job.outputs()));
             model.setDataCatalogOutputs(buildModelDataCatalogOutputs(job.dataCatalogOutputs()));
+            model.setDatabaseOutputs(buildModelDatabaseOutputs(job.databaseOutputs()));
         } else if (job.typeAsString().equals(Type.PROFILE.toString())) {
             model.setOutputLocation(buildModelOutputLocation(job.outputs()));
             model.setJobSample(buildRequestJobSample(job.jobSample()));
@@ -65,6 +70,7 @@ public class ModelHelper {
                 .maxCapacity(job.maxCapacity())
                 .maxRetries(job.maxRetries())
                 .recipe(buildModelRecipe(job.recipeReference()))
+                .projectName(job.projectName())
                 .roleArn(job.roleArn())
                 .tags(tags != null ? buildModelTags(tags) : null)
                 .timeout(job.timeout())
@@ -179,8 +185,8 @@ public class ModelHelper {
                     .formatOptions(buildRequestFormatOptions(output.getFormatOptions()))
                     .partitionColumns(output.getPartitionColumns())
                     .location(buildRequestS3Location(output.getLocation()))
-                    .maxOutputFiles(output.getMaxOutputFiles())
                     .overwrite(output.getOverwrite())
+                    .maxOutputFiles(output.getMaxOutputFiles())
                     .build();
            requestOutputs.add(requestOutput);
         });
@@ -197,8 +203,8 @@ public class ModelHelper {
                     .formatOptions(buildModelFormatOptions(output.formatOptions()))
                     .partitionColumns(output.partitionColumns())
                     .location(buildModelS3Location(output.location()))
-                    .maxOutputFiles(output.maxOutputFiles())
                     .overwrite(output.overwrite())
+                    .maxOutputFiles(output.maxOutputFiles())
                     .build();
             modelOutputs.add(modelOutput);
         });
@@ -207,7 +213,7 @@ public class ModelHelper {
 
     public static List<DataCatalogOutput> buildRequestDataCatalogOutputs(final List<software.amazon.databrew.job.DataCatalogOutput> dataCatalogOutputs) {
         List<DataCatalogOutput> requestDataCatalogOutputs = new ArrayList<>();
-        if (dataCatalogOutputs == null) return null;
+        if (CollectionUtils.isNullOrEmpty(dataCatalogOutputs)) return null;
         dataCatalogOutputs.forEach(dataCatalogOutput -> {
             DataCatalogOutput requestDataCatalogOutput = DataCatalogOutput.builder()
                     .catalogId(dataCatalogOutput.getCatalogId())
@@ -224,7 +230,7 @@ public class ModelHelper {
 
     public static List<DatabaseOutput> buildRequestDatabaseOutputs(final List<software.amazon.databrew.job.DatabaseOutput> databaseOutputs) {
         List<DatabaseOutput> requestDatabaseOutputs = new ArrayList<>();
-        if (databaseOutputs == null) return null;
+        if (CollectionUtils.isNullOrEmpty(databaseOutputs)) return null;
         databaseOutputs.forEach(databaseOutput -> {
             DatabaseOutput requestDataCatalogOutput = DatabaseOutput.builder()
                     .glueConnectionName(databaseOutput.getGlueConnectionName())
@@ -236,23 +242,9 @@ public class ModelHelper {
         return requestDatabaseOutputs;
     }
 
-    public static List<software.amazon.databrew.job.DatabaseOutput> buildModelDatabaseOutputs(final List<DatabaseOutput> databaseOutputs) {
-        List<software.amazon.databrew.job.DatabaseOutput> modelDatabaseOutputs = new ArrayList<>();
-        if (databaseOutputs == null) return null;
-        databaseOutputs.forEach(databaseOutput -> {
-            software.amazon.databrew.job.DatabaseOutput modelDatabaseOutput = new software.amazon.databrew.job.DatabaseOutput().builder()
-                    .glueConnectionName(databaseOutput.glueConnectionName())
-                    .databaseOptions(buildModelDatabaseTableOutputOptions(databaseOutput.databaseOptions()))
-                    .databaseOutputMode(databaseOutput.databaseOutputModeAsString())
-                    .build();
-            modelDatabaseOutputs.add(modelDatabaseOutput);
-        });
-        return modelDatabaseOutputs;
-    }
-
     public static List<software.amazon.databrew.job.DataCatalogOutput> buildModelDataCatalogOutputs(final List<DataCatalogOutput> dataCatalogOutputs) {
         List<software.amazon.databrew.job.DataCatalogOutput> modelDataCatalogOutputs = new ArrayList<>();
-        if (dataCatalogOutputs == null) return null;
+        if (CollectionUtils.isNullOrEmpty(dataCatalogOutputs)) return null;
         dataCatalogOutputs.forEach(dataCatalogOutput -> {
             software.amazon.databrew.job.DataCatalogOutput modelDataCatalogOutput = new software.amazon.databrew.job.DataCatalogOutput().builder()
                     .catalogId(dataCatalogOutput.catalogId())
@@ -265,6 +257,20 @@ public class ModelHelper {
             modelDataCatalogOutputs.add(modelDataCatalogOutput);
         });
         return modelDataCatalogOutputs;
+    }
+
+    public static List<software.amazon.databrew.job.DatabaseOutput> buildModelDatabaseOutputs(final List<DatabaseOutput> databaseOutputs) {
+        List<software.amazon.databrew.job.DatabaseOutput> modelDatabaseOutputs = new ArrayList<>();
+        if (CollectionUtils.isNullOrEmpty(databaseOutputs)) return null;
+        databaseOutputs.forEach(databaseOutput -> {
+            software.amazon.databrew.job.DatabaseOutput modelDatabaseOutput = new software.amazon.databrew.job.DatabaseOutput().builder()
+                    .glueConnectionName(databaseOutput.glueConnectionName())
+                    .databaseOptions(buildModelDatabaseTableOutputOptions(databaseOutput.databaseOptions()))
+                    .databaseOutputMode(databaseOutput.databaseOutputModeAsString())
+                    .build();
+            modelDatabaseOutputs.add(modelDatabaseOutput);
+        });
+        return modelDatabaseOutputs;
     }
 
     public static S3TableOutputOptions buildRequestS3TableOutputOptions(final software.amazon.databrew.job.S3TableOutputOptions modelS3TableOutputOptions) {
@@ -298,6 +304,7 @@ public class ModelHelper {
                 .profileColumns(buildRequestColumnSelectors(modelProfileConfiguration.getProfileColumns()))
                 .datasetStatisticsConfiguration(buildRequestStatisticsConfiguration(modelProfileConfiguration.getDatasetStatisticsConfiguration()))
                 .columnStatisticsConfigurations(buildRequestColumnStatisticsConfigurations(modelProfileConfiguration.getColumnStatisticsConfigurations()))
+                .entityDetectorConfiguration(buildRequestEntityDetectorConfiguration(modelProfileConfiguration.getEntityDetectorConfiguration()))
                 .build();
     }
 
@@ -306,18 +313,19 @@ public class ModelHelper {
                 .profileColumns(buildModelColumnSelectors(requestProfileConfiguration.profileColumns()))
                 .datasetStatisticsConfiguration(buildModelStatisticsConfiguration(requestProfileConfiguration.datasetStatisticsConfiguration()))
                 .columnStatisticsConfigurations(buildModelColumnStatisticsConfigurations(requestProfileConfiguration.columnStatisticsConfigurations()))
+                .entityDetectorConfiguration(buildModelEntityDetectorConfiguration(requestProfileConfiguration.entityDetectorConfiguration()))
                 .build();
     }
 
     public static List<software.amazon.databrew.job.ValidationConfiguration> buildModelValidationConfigurations(final
         List<software.amazon.awssdk.services.databrew.model.ValidationConfiguration> requestValidationConfigurations) {
         List<software.amazon.databrew.job.ValidationConfiguration> modelValidationConfigurations = new ArrayList<>();
-        if (requestValidationConfigurations == null) return null;
+        if (CollectionUtils.isNullOrEmpty(requestValidationConfigurations)) return null;
         requestValidationConfigurations.forEach(validationConfiguration -> {
             software.amazon.databrew.job.ValidationConfiguration modelValidationConfiguration =
                     new software.amazon.databrew.job.ValidationConfiguration().builder()
                     .rulesetArn(validationConfiguration.rulesetArn())
-                    .validationMode(validationConfiguration.validationMode().toString())
+                    .validationMode((validationConfiguration.validationMode() != null) ? validationConfiguration.validationMode().toString() : "")
                     .build();
             modelValidationConfigurations.add(modelValidationConfiguration);
         });
@@ -327,7 +335,7 @@ public class ModelHelper {
     public static List<software.amazon.awssdk.services.databrew.model.ValidationConfiguration> buildRequestValidationConfigurations(final List<software.amazon.databrew.job.ValidationConfiguration>
                                                                                                                                             modelValidationConfigurations) {
         List<software.amazon.awssdk.services.databrew.model.ValidationConfiguration> requestValidationConfigurations = new ArrayList<>();
-        if (modelValidationConfigurations == null) return null;
+        if (CollectionUtils.isNullOrEmpty(modelValidationConfigurations)) return null;
         modelValidationConfigurations.forEach(validationConfiguration -> {
             software.amazon.awssdk.services.databrew.model.ValidationConfiguration requestValidationConfiguration =
                     software.amazon.awssdk.services.databrew.model.ValidationConfiguration.builder()
@@ -341,7 +349,7 @@ public class ModelHelper {
 
     public static List<software.amazon.awssdk.services.databrew.model.ColumnStatisticsConfiguration> buildRequestColumnStatisticsConfigurations(final List<ColumnStatisticsConfiguration> modelColumnStatisticsConfigurations) {
         List<software.amazon.awssdk.services.databrew.model.ColumnStatisticsConfiguration> requestColumnStatisticsConfigurations = new ArrayList<>();
-        if (modelColumnStatisticsConfigurations == null) {
+        if (CollectionUtils.isNullOrEmpty(modelColumnStatisticsConfigurations)) {
             return null;
         }
         modelColumnStatisticsConfigurations.forEach(modelColumnStatisticsConfiguration -> {
@@ -356,7 +364,7 @@ public class ModelHelper {
 
     public static List<ColumnStatisticsConfiguration> buildModelColumnStatisticsConfigurations(final List<software.amazon.awssdk.services.databrew.model.ColumnStatisticsConfiguration> requestColumnStatisticsConfigurations) {
         List<ColumnStatisticsConfiguration> modelColumnStatisticsConfigurations = new ArrayList<>();
-        if (requestColumnStatisticsConfigurations == null) {
+        if (CollectionUtils.isNullOrEmpty(requestColumnStatisticsConfigurations)) {
             return null;
         }
         requestColumnStatisticsConfigurations.forEach(requestColumnStatisticsConfiguration -> {
@@ -371,7 +379,7 @@ public class ModelHelper {
 
     public static List<software.amazon.awssdk.services.databrew.model.ColumnSelector> buildRequestColumnSelectors(final List<ColumnSelector> modelColumnSelectors) {
         List<software.amazon.awssdk.services.databrew.model.ColumnSelector> requestColumnSelectors = new ArrayList<>();
-        if (modelColumnSelectors == null) {
+        if (CollectionUtils.isNullOrEmpty(modelColumnSelectors)) {
             return null;
         }
         modelColumnSelectors.forEach(modelColumnSelector -> {
@@ -386,7 +394,7 @@ public class ModelHelper {
 
     public static List<ColumnSelector> buildModelColumnSelectors(final List<software.amazon.awssdk.services.databrew.model.ColumnSelector> requestColumnSelectors) {
         List<ColumnSelector> modelProfileColumnSelectors = new ArrayList<>();
-        if (requestColumnSelectors == null) {
+        if (CollectionUtils.isNullOrEmpty(requestColumnSelectors)) {
             return null;
         }
         requestColumnSelectors.forEach(requestColumnSelector -> {
@@ -411,6 +419,53 @@ public class ModelHelper {
                 .includedStatistics(requestStatisticsConfiguration.includedStatistics())
                 .overrides(buildModelStatisticOverrides(requestStatisticsConfiguration.overrides()))
                 .build();
+    }
+
+    public static software.amazon.awssdk.services.databrew.model.EntityDetectorConfiguration buildRequestEntityDetectorConfiguration(final EntityDetectorConfiguration modelEntityDetectorConfiguration) {
+        if (modelEntityDetectorConfiguration == null) return null;
+        else if (modelEntityDetectorConfiguration.getAllowedStatistics() == null) {
+            return software.amazon.awssdk.services.databrew.model.EntityDetectorConfiguration.builder()
+                .entityTypes(modelEntityDetectorConfiguration.getEntityTypes())
+                .build();
+        }
+        else {
+            return software.amazon.awssdk.services.databrew.model.EntityDetectorConfiguration.builder()
+                .entityTypes(modelEntityDetectorConfiguration.getEntityTypes())
+                .allowedStatistics(buildRequestAllowedStatistics(modelEntityDetectorConfiguration.getAllowedStatistics()))
+                .build();
+        }
+    }
+
+    public static EntityDetectorConfiguration buildModelEntityDetectorConfiguration(final software.amazon.awssdk.services.databrew.model.EntityDetectorConfiguration requestEntityDetectorConfiguration){
+        if (requestEntityDetectorConfiguration == null) return null;
+        else if (CollectionUtils.isNullOrEmpty(requestEntityDetectorConfiguration.allowedStatistics()) || !requestEntityDetectorConfiguration.hasAllowedStatistics()) {
+            return EntityDetectorConfiguration.builder()
+                    .entityTypes(requestEntityDetectorConfiguration.entityTypes())
+                    .build();
+        }
+        else {
+            return EntityDetectorConfiguration.builder()
+                    .entityTypes(requestEntityDetectorConfiguration.entityTypes())
+                    .allowedStatistics(buildModelAllowedStatistics(requestEntityDetectorConfiguration.allowedStatistics()))
+                    .build();
+        }
+    }
+
+    public static software.amazon.awssdk.services.databrew.model.AllowedStatistics buildRequestAllowedStatistics(final software.amazon.databrew.job.AllowedStatistics modelAllowedStatistics) {
+        if (modelAllowedStatistics == null) return null;
+        software.amazon.awssdk.services.databrew.model.AllowedStatistics requestAllowedStatistics = software.amazon.awssdk.services.databrew.model.AllowedStatistics.builder()
+                .statistics(modelAllowedStatistics.getStatistics())
+                .build();
+        return requestAllowedStatistics;
+    }
+
+    public static software.amazon.databrew.job.AllowedStatistics buildModelAllowedStatistics(final List<software.amazon.awssdk.services.databrew.model.AllowedStatistics> requestAllowedStatistics) {
+        if (CollectionUtils.isNullOrEmpty(requestAllowedStatistics)) return null;
+        software.amazon.awssdk.services.databrew.model.AllowedStatistics requestAllowedStatisticsObject = requestAllowedStatistics.get(0);
+        software.amazon.databrew.job.AllowedStatistics modelAllowedStatistics = software.amazon.databrew.job.AllowedStatistics.builder()
+                .statistics(requestAllowedStatisticsObject.statistics())
+                .build();
+        return modelAllowedStatistics;
     }
 
     public static List<software.amazon.awssdk.services.databrew.model.StatisticOverride> buildRequestStatisticOverrides(final List<StatisticOverride> modelStatisticOverrides) {
